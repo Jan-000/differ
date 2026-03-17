@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>String Diff Tool</title>
+  <script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
+  <style>
+    .styled-input span[style*="background"] {
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+
+    .styled-input {
+      width: 100%;
+      min-height: 100px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 15px;
+      background: #fff;
+      outline: none;
+      margin-bottom: 4px;
+      position: relative;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .styled-input b {
+      font-weight: bold;
+    }
+
+    .styled-input i {
+      font-style: italic;
+    }
+
+    .styled-input u {
+      text-decoration: underline;
+    }
+
+    .styled-input:empty:before {
+      content: attr(data-placeholder);
+      color: #aaa;
+      pointer-events: none;
+      position: absolute;
+      left: 8px;
+      top: 8px;
+    }
+
+    mark {
+      background: transparent;
+      color: inherit;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2em;
+    }
+
+    textarea {
+      width: 45%;
+      height: 100px;
+      margin: 0 2%;
+    }
+
+    #diff-output {
+      margin-top: 2em;
+      display: flex;
+      gap: 2em;
+    }
+
+    .diff-box {
+      width: 45%;
+      padding: 1em;
+      border-radius: 8px;
+      background: #fafafa;
+      min-height: 60px;
+      position: relative;
+    }
+
+    .added {
+      background: #d4fcbc;
+      color: #256029;
+      padding: 5px 0 5px 0;
+      border-radius: 2px;
+    }
+
+    .removed {
+      background: #fbb6c2;
+      color: #a1262d;
+      padding: 5px 0 5px 0;
+      border-radius: 2px;
+    }
+
+    .revert-button {
+      padding: 2px 8px;
+      font-size: 11px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      vertical-align: middle;
+      position: absolute;
+      z-index: 10;
+    }
+
+    .revert-button-left {
+      background: #fbb6c2;
+      color: #a1262d;
+      border: 1px solid #a1262d33;
+    }
+
+    .revert-button-left:hover {
+      background: #f89aa9;
+    }
+
+    .revert-button-right {
+      background: #d4fcbc;
+      color: #256029;
+      border: 1px solid #25602933;
+    }
+
+    .revert-button-right:hover {
+      background: #bdf2a1;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Online String Diff Tool</h1>
+  <div style="display: flex; gap: 4%">
+    <div style="width: 45%">
+      <div style="margin-bottom: 6px">
+        <button type="button" onmousedown="event.preventDefault()" onclick="applyBgColor('inputA')"
+          style="background: #e1d1ff; border: 1px solid #ccc">
+          Aa
+        </button>
+        <button type="button" onclick="applyStyle('inputA', 'bold')">
+          <b>B</b>
+        </button>
+        <button type="button" onclick="applyStyle('inputA', 'italic')">
+          <i>I</i>
+        </button>
+        <button type="button" onclick="applyStyle('inputA', 'underline')">
+          <u>U</u>
+        </button>
+      </div>
+      <div id="inputA" contenteditable="true" class="styled-input" data-placeholder="Enter first string..."></div>
+    </div>
+    <div style="width: 45%">
+      <div style="margin-bottom: 6px">
+        <button type="button" onmousedown="event.preventDefault()" onclick="applyBgColor('inputB')"
+          style="background: #e1d1ff; border: 1px solid #ccc">
+          Aa
+        </button>
+        <button type="button" onclick="applyStyle('inputB', 'bold')">
+          <b>B</b>
+        </button>
+        <button type="button" onclick="applyStyle('inputB', 'italic')">
+          <i>I</i>
+        </button>
+        <button type="button" onclick="applyStyle('inputB', 'underline')">
+          <u>U</u>
+        </button>
+      </div>
+      <div id="inputB" contenteditable="true" class="styled-input" data-placeholder="Enter second string..."></div>
+    </div>
+  </div>
+  <button onclick="showDiff()">Show Diff</button>
+
+  <div id="diff-output">
+    <div class="diff-box" id="diff-left"><b>Deletions</b><br /></div>
+    <div class="diff-box" id="diff-right"><b>Additions</b><br /></div>
+  </div>
+  <script src="diff2.js"></script>
+</body>
+
+</html>

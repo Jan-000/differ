@@ -140,6 +140,17 @@ button.primary:hover {
   position: relative;
 }
 
+.diff-column {
+  flex: 1 1 45%;
+  min-width: 260px;
+}
+.diff-heading {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
 .added {
   background: #ecfdf5;
   color: #065f46;
@@ -195,6 +206,16 @@ mark[unchanged] {
   gap: 1rem;
   margin-bottom: 0.5rem;
 }
+.header-actions {
+  display: inline-flex;
+  align-items: center;
+}
+.alt-space {
+  /* reserve same space as the close button so icons don't shift */
+  width: 44px; /* 36px button + small gap */
+  height: 40px;
+  display: inline-block;
+}
 .theme-toggle {
   background: transparent;
   border: 1px solid transparent;
@@ -210,6 +231,8 @@ mark[unchanged] {
   transition:
     background 0.12s ease,
     transform 0.08s ease;
+  /* nudge left slightly for better alignment with header items */
+  margin-left: -8px;
 }
 .theme-toggle:hover {
   background: rgba(2, 6, 23, 0.04);
@@ -243,10 +266,18 @@ body {
 :root[data-theme="dark"] .styled-input {
   border-color: rgba(255, 255, 255, 0.04);
   box-shadow: 0 6px 18px rgba(99, 102, 241, 0.06);
+  /* make inputs slightly brighter than the page background */
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text);
+  /* subtle inner highlight to separate from background */
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
 }
 
 :root[data-theme="dark"] .diff-box {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+  /* subtle border to define output areas */
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 :root[data-theme="dark"] .toolbar-btn {
@@ -280,6 +311,16 @@ body.alt-mode .container {
   align-items: center;
   justify-content: center;
   color: var(--muted);
+}
+
+/* When alt-close is placed in the header-row (preferred), use static flow */
+.header-row .alt-close {
+  position: static;
+  margin-left: 0.5rem;
+  width: 36px;
+  height: 36px;
+  box-shadow: none;
+  background: transparent;
 }
 
 /* When the close button is inside the container (alt-mode), remove heavy background */

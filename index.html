@@ -31,12 +31,13 @@
     <div class="container">
       <div class="header-row">
         <h1 id="page-title">html string diffing tool - diffArrays of tokens</h1>
-        <button
-          id="theme-toggle"
-          class="theme-toggle"
-          aria-label="Toggle theme"
-          aria-pressed="false"
-        >
+        <div class="header-actions">
+          <button
+            id="theme-toggle"
+            class="theme-toggle"
+            aria-label="Toggle theme"
+            aria-pressed="false"
+          >
           <!-- Sun icon -->
           <svg
             class="icon icon-sun"
@@ -78,7 +79,9 @@
               stroke-linejoin="round"
             />
           </svg>
-        </button>
+          </button>
+          <div class="alt-space" aria-hidden="true"></div>
+        </div>
       </div>
       <div class="inputs-row">
         <div class="input-column">
@@ -167,8 +170,14 @@
       </div>
 
       <div id="diff-output">
-        <div class="diff-box" id="diff-left"><b>Deletions</b><br /></div>
-        <div class="diff-box" id="diff-right"><b>Additions</b><br /></div>
+        <div class="diff-column">
+          <h2 class="diff-heading">Deletions</h2>
+          <div class="diff-box" id="diff-left"></div>
+        </div>
+        <div class="diff-column">
+          <h2 class="diff-heading">Additions</h2>
+          <div class="diff-box" id="diff-right"></div>
+        </div>
       </div>
     </div>
     <details id="about" class="about">
@@ -200,8 +209,20 @@
           btn.innerHTML =
             '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
           btn.addEventListener("click", closeAltMode);
-           const container = document.querySelector('.container') || document.body;
-           container.appendChild(btn);
+           // Prefer placing the close button next to the theme toggle in the header
+           const header = document.querySelector('.header-row');
+           const toggle = document.getElementById('theme-toggle');
+           const altSpace = document.querySelector('.alt-space');
+           if (altSpace) {
+             // place the close button into the reserved header space
+             altSpace.appendChild(btn);
+           } else if (header && toggle) {
+             // fallback: insert after the toggle
+             header.insertBefore(btn, toggle.nextSibling);
+           } else {
+             const container = document.querySelector('.container') || document.body;
+             container.appendChild(btn);
+           }
         }
       }
 

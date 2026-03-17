@@ -296,3 +296,17 @@ body.alt-mode .container .alt-close {
 .about .about-body {
   padding: 0.5rem 0;
 }
+
+/* Light-mode: invert input and output visual roles (inputs look like cards, outputs blend with background) */
+:root:not([data-theme="dark"]) .styled-input {
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.04);
+  border-color: rgba(15, 23, 42, 0.06);
+}
+
+:root:not([data-theme="dark"]) .diff-box {
+  background: transparent;
+  box-shadow: none;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}

@@ -264,13 +264,8 @@ function showDiff() {
   annotateCorrespondingChanges(parts);
 
   console.log("Token diff result:", parts);
-  const leftHtml =
-    "<b>Deletions</b><br>" + buildSideHtml(parts, "left", tokensA, tokensB);
-  const rightHtml =
-    "<b>Additions</b><br>" + buildSideHtml(parts, "right", tokensA, tokensB);
-
-  document.getElementById("diff-left").innerHTML = leftHtml;
-  document.getElementById("diff-right").innerHTML = rightHtml;
+  document.getElementById("diff-left").innerHTML = buildSideHtml(parts, "left", tokensA, tokensB);
+  document.getElementById("diff-right").innerHTML = buildSideHtml(parts, "right", tokensA, tokensB);
 
   setupRevertButtons();
 

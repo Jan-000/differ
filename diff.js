@@ -202,11 +202,9 @@
     console.log("Wrapped additions HTML:", right);
 
     document.getElementById("diff-left").innerHTML =
-      "<b>Deletions</b><br>" +
-      (left || '<span style="color:#aaa">(none)</span>');
+      left || '<span style="color:#aaa">(none)</span>';
     document.getElementById("diff-right").innerHTML =
-      "<b>Additions</b><br>" +
-      (right || '<span style="color:#aaa">(none)</span>');
+      right || '<span style="color:#aaa">(none)</span>';
   }
 
   function escapeHtml(text) {

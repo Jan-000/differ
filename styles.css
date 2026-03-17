@@ -3,8 +3,7 @@
   --card: #ffffff;
   --muted: #6b7280;
   --accent: #6c5ce7;
-  --success: #16a34a;
-  --danger: #ef4444;
+  --text: #0f172a;
 }
 
 * {
@@ -20,7 +19,7 @@ body {
     Roboto,
     Arial;
   background: var(--bg);
-  color: #0f172a;
+  color: var(--text);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -43,7 +42,8 @@ h1 {
   flex-wrap: wrap;
   margin-bottom: 1rem;
 }
-.input-column {
+.input-column,
+.diff-column {
   flex: 1 1 45%;
   min-width: 260px;
 }
@@ -131,18 +131,12 @@ button.primary:hover {
   flex-wrap: wrap;
 }
 .diff-box {
-  flex: 1 1 45%;
   padding: 1rem;
   border-radius: 12px;
   background: var(--card);
   box-shadow: 0 6px 18px rgba(2, 6, 23, 0.04);
   min-height: 80px;
   position: relative;
-}
-
-.diff-column {
-  flex: 1 1 45%;
-  min-width: 260px;
 }
 .diff-heading {
   margin: 0 0 0.5rem;
@@ -190,10 +184,8 @@ mark[unchanged] {
   .inputs-row {
     flex-direction: column;
   }
-  .input-column {
-    flex-basis: 100%;
-  }
-  .diff-box {
+  .input-column,
+  .diff-column {
     flex-basis: 100%;
   }
 }
@@ -244,23 +236,12 @@ mark[unchanged] {
   display: block;
 }
 
-:root {
-  --text: #0f172a;
-}
-
 :root[data-theme="dark"] {
   --bg: #071024;
   --card: #071428;
   --muted: #9aa6b2;
   --accent: #8b5cf6;
-  --success: #10b981;
-  --danger: #fb7185;
   --text: #e6eef8;
-}
-
-body {
-  background: var(--bg);
-  color: var(--text);
 }
 
 :root[data-theme="dark"] .styled-input {
@@ -283,9 +264,6 @@ body {
 :root[data-theme="dark"] .toolbar-btn {
   color: var(--muted);
 }
-
-/* Show only one icon based on data-theme */
-.theme-toggle .icon { display: inline-block; }
 
 /* alternate diff mode outline and close button */
 body.alt-mode .container {
@@ -336,6 +314,13 @@ body.alt-mode .container .alt-close {
 }
 .about .about-body {
   padding: 0.5rem 0;
+}
+
+/* Prevent default yellow highlight for plain <mark> elements */
+mark {
+  background: transparent;
+  color: inherit;
+  padding: 0;
 }
 
 /* Light-mode: invert input and output visual roles (inputs look like cards, outputs blend with background) */

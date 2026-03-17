@@ -1,47 +1,264 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>String Diff Tool</title>
+    <script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
+    <script>
+      // Set theme early to avoid icon/theme flicker before JS loads
+      (function () {
+        try {
+          var stored = localStorage.getItem("theme");
+          var prefersDark =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var theme =
+            stored === "dark" || stored === "light"
+              ? stored
+              : prefersDark
+                ? "dark"
+                : "light";
+          if (theme === "dark")
+            document.documentElement.setAttribute("data-theme", "dark");
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>String Diff Tool</title>
-  <script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
-  <link rel="stylesheet" href="styles.css">
-</head>
-
-<body>
-  <div class="container">
-    <h1>Online String Diff Tool</h1>
-    <div class="inputs-row">
-      <div class="input-column">
-        <div class="toolbar">
-          <button type="button" class="toolbar-btn color-btn" onmousedown="event.preventDefault()" onclick="applyBgColor('inputA')">Aa</button>
-          <button type="button" class="toolbar-btn" onclick="applyStyle('inputA', 'bold')"><b>B</b></button>
-          <button type="button" class="toolbar-btn" onclick="applyStyle('inputA', 'italic')"><i>I</i></button>
-          <button type="button" class="toolbar-btn" onclick="applyStyle('inputA', 'underline')"><u>U</u></button>
-        </div>
-        <div id="inputA" contenteditable="true" class="styled-input" data-placeholder="Enter first string..."></div>
+  <body>
+    <div class="container">
+      <div class="header-row">
+        <h1 id="page-title">html string diffing tool - diffArrays of tokens</h1>
+        <button
+          id="theme-toggle"
+          class="theme-toggle"
+          aria-label="Toggle theme"
+          aria-pressed="false"
+        >
+          <!-- Sun icon -->
+          <svg
+            class="icon icon-sun"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M12 4V2M12 22v-2M4 12H2M22 12h-2M5.64 5.64L4.22 4.22M19.78 19.78l-1.42-1.42M19.78 4.22l-1.42 1.42M5.64 18.36l-1.42 1.42"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <circle
+              cx="12"
+              cy="12"
+              r="3"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <!-- Moon icon -->
+          <svg
+            class="icon icon-moon icon-hidden"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
       </div>
-      <div class="input-column">
-        <div class="toolbar">
-          <button type="button" class="toolbar-btn color-btn" onmousedown="event.preventDefault()" onclick="applyBgColor('inputB')">Aa</button>
-          <button type="button" class="toolbar-btn" onclick="applyStyle('inputB', 'bold')"><b>B</b></button>
-          <button type="button" class="toolbar-btn" onclick="applyStyle('inputB', 'italic')"><i>I</i></button>
-          <button type="button" class="toolbar-btn" onclick="applyStyle('inputB', 'underline')"><u>U</u></button>
+      <div class="inputs-row">
+        <div class="input-column">
+          <div class="toolbar">
+            <button
+              type="button"
+              class="toolbar-btn color-btn"
+              onmousedown="event.preventDefault()"
+              onclick="applyBgColor('inputA')"
+            >
+              Aa
+            </button>
+            <button
+              type="button"
+              class="toolbar-btn"
+              onclick="applyStyle('inputA', 'bold')"
+            >
+              <b>B</b>
+            </button>
+            <button
+              type="button"
+              class="toolbar-btn"
+              onclick="applyStyle('inputA', 'italic')"
+            >
+              <i>I</i>
+            </button>
+            <button
+              type="button"
+              class="toolbar-btn"
+              onclick="applyStyle('inputA', 'underline')"
+            >
+              <u>U</u>
+            </button>
+          </div>
+          <div
+            id="inputA"
+            contenteditable="true"
+            class="styled-input"
+            data-placeholder="Enter first string..."
+          ></div>
         </div>
-        <div id="inputB" contenteditable="true" class="styled-input" data-placeholder="Enter second string..."></div>
+
+        <div class="input-column">
+          <div class="toolbar">
+            <button
+              type="button"
+              class="toolbar-btn color-btn"
+              onmousedown="event.preventDefault()"
+              onclick="applyBgColor('inputB')"
+            >
+              Aa
+            </button>
+            <button
+              type="button"
+              class="toolbar-btn"
+              onclick="applyStyle('inputB', 'bold')"
+            >
+              <b>B</b>
+            </button>
+            <button
+              type="button"
+              class="toolbar-btn"
+              onclick="applyStyle('inputB', 'italic')"
+            >
+              <i>I</i>
+            </button>
+            <button
+              type="button"
+              class="toolbar-btn"
+              onclick="applyStyle('inputB', 'underline')"
+            >
+              <u>U</u>
+            </button>
+          </div>
+          <div
+            id="inputB"
+            contenteditable="true"
+            class="styled-input"
+            data-placeholder="Enter second string..."
+          ></div>
+        </div>
+      </div>
+
+      <div class="diff-controls">
+        <button class="primary" onclick="showDiff()">Show Diff</button>
+      </div>
+
+      <div id="diff-output">
+        <div class="diff-box" id="diff-left"><b>Deletions</b><br /></div>
+        <div class="diff-box" id="diff-right"><b>Additions</b><br /></div>
       </div>
     </div>
+    <details id="about" class="about">
+      <summary>About</summary>
+      <div class="about-body">
+        <p>
+          Placeholder: This tool shows differences between two rich-text
+          strings. It supports inline highlights, basic formatting and revert
+          actions. Put: explanation about heuristic and edge cases. Make
+          explanation progressively expansible. A la limite that could be a
+          small model, trained to answer questions and explain the repo.
+        </p>
+        <p>
+          <a href="#" id="test-alt-link">Test alternate diff engine</a>
+        </p>
+      </div>
+    </details>
+    <script>
+      // Dynamically load and run alternate diff engine (diff.js) when requested
+      function enterAltMode() {
+        document.body.classList.add("alt-mode");
+        const t = document.getElementById("page-title");
+        if (t) t.textContent = "html string diffing tool - diffWords by words";
+        if (!document.getElementById("alt-close")) {
+          const btn = document.createElement("button");
+          btn.id = "alt-close";
+          btn.className = "alt-close";
+          btn.title = "Close alternate diff";
+          btn.innerHTML =
+            '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+          btn.addEventListener("click", closeAltMode);
+          document.body.appendChild(btn);
+        }
+      }
 
-    <div class="diff-controls">
-      <button class="primary" onclick="showDiff()">Show Diff</button>
-    </div>
+      function closeAltMode() {
+        document.body.classList.remove("alt-mode");
+        const btn = document.getElementById("alt-close");
+        if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
+        // revert to default diff logic (diff2)
+        try {
+          if (typeof showDiff === "function") showDiff();
+        } catch (e) {
+          console.error(e);
+        }
+        const t = document.getElementById("page-title");
+        if (t)
+          t.textContent = "html string diffing tool - diffArrays of tokens";
+      }
 
-  <div id="diff-output">
-    <div class="diff-box" id="diff-left"><b>Deletions</b><br /></div>
-    <div class="diff-box" id="diff-right"><b>Additions</b><br /></div>
-  </div>
-  <script src="diff2.js"></script>
-</body>
+      function runAltDiff() {
+        function callAlt() {
+          try {
+            window.DiffAlt.showDiff();
+            enterAltMode();
+          } catch (e) {
+            console.error(e);
+          }
+        }
 
+        if (window.DiffAlt && typeof window.DiffAlt.showDiff === "function") {
+          callAlt();
+          return;
+        }
+
+        // Load script once and then run
+        const s = document.createElement("script");
+        s.src = "diff.js";
+        s.onload = function () {
+          if (window.DiffAlt && typeof window.DiffAlt.showDiff === "function") {
+            callAlt();
+          } else {
+            console.error("Alternate diff engine did not export expected API.");
+          }
+        };
+        s.onerror = function () {
+          console.error("Failed to load diff.js");
+        };
+        document.body.appendChild(s);
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const link = document.getElementById("test-alt-link");
+        if (link)
+          link.addEventListener("click", function (e) {
+            e.preventDefault();
+            runAltDiff();
+          });
+      });
+    </script>
+    <script src="diff2.js"></script>
+  </body>
 </html>

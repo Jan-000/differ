@@ -234,9 +234,7 @@ function buildSideHtml(parts, side, tokensA, tokensB) {
       const unchangedLen = Array.isArray(part.value) ? part.value.length : 0;
       for (let i = 0; i < unchangedLen; i++) {
         const t =
-          side === "left"
-            ? tokensA[part.aStart + i]
-            : tokensB[part.bStart + i];
+          side === "left" ? tokensA[part.aStart + i] : tokensB[part.bStart + i];
         if (!t) continue;
         const space = t.spaceAfter != null ? t.spaceAfter : " ";
         unchangedBuffer += renderToken(t) + space;
@@ -739,3 +737,66 @@ window.addEventListener("keydown", (event) => {
 
 // TODO:
 // - rerun diff upon resolving
+
+// ---------------- Theme handling ----------------
+function getPreferredTheme() {
+  const stored = localStorage.getItem("theme");
+  if (stored === "dark" || stored === "light") return stored;
+  if (
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  )
+    return "dark";
+  return "light";
+}
+
+function applyTheme(theme) {
+  if (theme === "dark") {
+    document.documentElement.setAttribute("data-theme", "dark");
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+  }
+  const btn = document.getElementById("theme-toggle");
+  if (btn) {
+    btn.setAttribute("aria-pressed", theme === "dark");
+  }
+}
+
+function toggleTheme() {
+  const active =
+    document.documentElement.getAttribute("data-theme") === "dark"
+      ? "dark"
+      : "light";
+  const next = active === "dark" ? "light" : "dark";
+  applyTheme(next);
+  try {
+    localStorage.setItem("theme", next);
+  } catch (e) {}
+}
+
+function initTheme() {
+  const theme = getPreferredTheme();
+  applyTheme(theme);
+  const btn = document.getElementById("theme-toggle");
+  if (btn) btn.addEventListener("click", toggleTheme);
+
+  // If user hasn't explicitly chosen, follow OS changes
+  if (!localStorage.getItem("theme") && window.matchMedia) {
+    try {
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (e) => {
+          applyTheme(e.matches ? "dark" : "light");
+        });
+    } catch (e) {
+      // some browsers use remove/addListener older API; ignore if not available
+    }
+  }
+}
+
+// initialize theme on script load
+try {
+  initTheme();
+} catch (e) {
+  console.error("Theme init error", e);
+}

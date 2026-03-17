@@ -759,6 +759,12 @@ function applyTheme(theme) {
   const btn = document.getElementById("theme-toggle");
   if (btn) {
     btn.setAttribute("aria-pressed", theme === "dark");
+    // Simplified icon toggle: show sun when current theme is dark (indicates switch to light),
+    // show moon when current theme is light (indicates switch to dark)
+    const sun = btn.querySelector('.icon-sun');
+    const moon = btn.querySelector('.icon-moon');
+    if (sun) sun.style.display = theme === 'dark' ? 'inline-block' : 'none';
+    if (moon) moon.style.display = theme === 'dark' ? 'none' : 'inline-block';
   }
 }
 

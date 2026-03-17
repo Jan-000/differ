@@ -253,24 +253,8 @@ body {
   color: var(--muted);
 }
 
-/* icon visibility handled by JS and small helper classes */
-.icon-hidden {
-  display: none;
-}
-
-/* Show only one icon based on data-theme to avoid simultaneous display */
-.icon-sun {
-  display: inline-block;
-}
-.icon-moon {
-  display: none;
-}
-:root[data-theme="dark"] .icon-sun {
-  display: none;
-}
-:root[data-theme="dark"] .icon-moon {
-  display: inline-block;
-}
+/* Show only one icon based on data-theme */
+.theme-toggle .icon { display: inline-block; }
 
 /* alternate diff mode outline and close button */
 body.alt-mode .container {

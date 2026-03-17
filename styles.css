@@ -278,12 +278,13 @@ body.alt-mode .container {
   border-radius: 12px;
   padding: 1rem;
   box-shadow: 0 10px 30px rgba(2, 6, 23, 0.06);
+  position: relative; /* ensure absolute children position inside the container */
 }
 
 .alt-close {
-  position: fixed;
-  right: 1rem;
-  top: 1rem;
+  position: absolute;
+  right: 12px;
+  top: 12px;
   width: 36px;
   height: 36px;
   border-radius: 8px;
@@ -295,6 +296,12 @@ body.alt-mode .container {
   align-items: center;
   justify-content: center;
   color: var(--muted);
+}
+
+/* When the close button is inside the container (alt-mode), remove heavy background */
+body.alt-mode .container .alt-close {
+  background: transparent;
+  box-shadow: none;
 }
 
 .about {

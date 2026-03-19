@@ -677,58 +677,61 @@ function enforceWordSelectionWithin(container) {
   sel.addRange(newRange);
 }
 
-["inputA", "inputB"].forEach((id) => {
-  const el = document.getElementById(id);
-  if (!el) return;
+if (!window.__diffEditorBindingsInitialized) {
+  ["inputA", "inputB"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
 
-  // Mouse selection snapping (can be revisited separately)
-  el.addEventListener("mouseup", () => enforceWordSelectionWithin(el));
+    // Mouse selection snapping (can be revisited separately)
+    el.addEventListener("mouseup", () => enforceWordSelectionWithin(el));
 
-  // Keyboard selection: only snap when using Shift + Arrow keys
-  el.addEventListener("keyup", (event) => {
-    const arrowKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
-    if (!event.shiftKey || !arrowKeys.includes(event.key)) {
-      return;
-    }
-    enforceWordSelectionWithin(el);
+    // Keyboard selection: only snap when using Shift + Arrow keys
+    el.addEventListener("keyup", (event) => {
+      const arrowKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
+      if (!event.shiftKey || !arrowKeys.includes(event.key)) {
+        return;
+      }
+      enforceWordSelectionWithin(el);
+    });
+
+    // Use Tab to move focus between the two inputs (instead of inserting tab)
+    el.addEventListener("keydown", (event) => {
+      if (event.key !== "Tab") return;
+      event.preventDefault();
+      const targetId = id === "inputA" ? "inputB" : "inputA";
+      const other = document.getElementById(targetId);
+      if (other) {
+        other.focus();
+      }
+    });
+
+    // Automatically rerun diff whenever the right input changes
+    // if (id === "inputB") {
+    //   el.addEventListener("input", () => {
+    //     try {
+    //       showDiff();
+    //     } catch (e) {
+    //       console.error("Error running showDiff from inputB change:", e);
+    //     }
+    //   });
+    // }
   });
 
-  // Use Tab to move focus between the two inputs (instead of inserting tab)
-  el.addEventListener("keydown", (event) => {
-    if (event.key !== "Tab") return;
+  // Global keyboard shortcut: Cmd+R to run "Show Diff" without reloading the page
+  window.addEventListener("keydown", (event) => {
+    if (!event.metaKey) return;
+    if (event.key !== "e" && event.key !== "E") return;
+
     event.preventDefault();
-    const targetId = id === "inputA" ? "inputB" : "inputA";
-    const other = document.getElementById(targetId);
-    if (other) {
-      other.focus();
+    try {
+      showDiff();
+    } catch (e) {
+      console.error("Error running showDiff from Cmd+R:", e);
     }
   });
 
-  // Automatically rerun diff whenever the right input changes
-  // if (id === "inputB") {
-  //   el.addEventListener("input", () => {
-  //     try {
-  //       showDiff();
-  //     } catch (e) {
-  //       console.error("Error running showDiff from inputB change:", e);
-  //     }
-  //   });
-  // }
-});
-
-// Global keyboard shortcut: Cmd+R to run "Show Diff" without reloading the page
-window.addEventListener("keydown", (event) => {
-  if (!event.metaKey) return;
-  if (event.key !== "e" && event.key !== "E") return;
-
-  // Prevent the browser's default refresh on Cmd+R
-  event.preventDefault();
-  try {
-    showDiff();
-  } catch (e) {
-    console.error("Error running showDiff from Cmd+R:", e);
-  }
-});
+  window.__diffEditorBindingsInitialized = true;
+}
 
 // TODO:
 // - rerun diff upon resolving
@@ -795,9 +798,19 @@ function initTheme() {
   }
 }
 
+window.DiffTokens = {
+  applyStyle,
+  applyBgColor,
+  showDiff,
+  escapeHtml,
+};
+
 // initialize theme on script load
 try {
-  initTheme();
+  if (!window.__diffThemeInitialized) {
+    initTheme();
+    window.__diffThemeInitialized = true;
+  }
 } catch (e) {
   console.error("Theme init error", e);
 }

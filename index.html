@@ -30,7 +30,7 @@
   <body>
     <div class="container">
       <div class="header-row">
-        <h1 id="page-title">html string diffing tool - diffArrays of tokens</h1>
+        <h1 id="page-title">html string diffing tool - newest engine</h1>
         <div class="header-actions">
           <button
             id="theme-toggle"
@@ -190,97 +190,143 @@
           explanation progressively expansible. A la limite that could be a
           small model, trained to answer questions and explain the repo.
         </p>
+        <p><strong>Previous engines</strong></p>
         <p>
-          <a href="#" id="test-alt-link">Test alternate diff engine</a>
+          <a href="#" id="engine-tokens-link">diffArrays of tokens</a>
+          &middot;
+          <a href="#" id="engine-words-link">diffWords by words</a>
         </p>
       </div>
     </details>
     <script>
-      // Dynamically load and run alternate diff engine (diff.js) when requested
-      function enterAltMode() {
+      const ENGINE_CONFIGS = {
+        newest: {
+          script: "diff3.js",
+          globalName: "DiffNewest",
+          title: "html string diffing tool - newest engine",
+        },
+        tokens: {
+          script: "diff2.js",
+          globalName: "DiffTokens",
+          title: "html string diffing tool - diffArrays of tokens",
+        },
+        words: {
+          script: "diff.js",
+          globalName: "DiffAlt",
+          title: "html string diffing tool - diffWords by words",
+        },
+      };
+      const DEFAULT_ENGINE = "newest";
+      let activeEngine = DEFAULT_ENGINE;
+
+      function applyEngineApi(api) {
+        if (!api) return;
+        if (typeof api.applyStyle === "function") window.applyStyle = api.applyStyle;
+        if (typeof api.applyBgColor === "function") window.applyBgColor = api.applyBgColor;
+        if (typeof api.showDiff === "function") window.showDiff = api.showDiff;
+        if (typeof api.escapeHtml === "function") window.escapeHtml = api.escapeHtml;
+      }
+
+      function syncEngineUi(engineKey) {
         document.body.classList.add("alt-mode");
         const t = document.getElementById("page-title");
-        if (t) t.textContent = "html string diffing tool - diffWords by words";
+        if (t) t.textContent = ENGINE_CONFIGS[engineKey].title;
+
+        if (engineKey === DEFAULT_ENGINE) {
+          document.body.classList.remove("alt-mode");
+          const existing = document.getElementById("alt-close");
+          if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+          return;
+        }
+
         if (!document.getElementById("alt-close")) {
-           const btn = document.createElement("button");
+          const btn = document.createElement("button");
           btn.id = "alt-close";
           btn.className = "alt-close";
-          btn.title = "Close alternate diff";
+          btn.title = "Return to newest engine";
           btn.innerHTML =
             '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
           btn.addEventListener("click", closeAltMode);
-           // Prefer placing the close button next to the theme toggle in the header
-           const header = document.querySelector('.header-row');
-           const toggle = document.getElementById('theme-toggle');
-           const altSpace = document.querySelector('.alt-space');
-           if (altSpace) {
-             // place the close button into the reserved header space
-             altSpace.appendChild(btn);
-           } else if (header && toggle) {
-             // fallback: insert after the toggle
-             header.insertBefore(btn, toggle.nextSibling);
-           } else {
-             const container = document.querySelector('.container') || document.body;
-             container.appendChild(btn);
-           }
+          const header = document.querySelector('.header-row');
+          const toggle = document.getElementById('theme-toggle');
+          const altSpace = document.querySelector('.alt-space');
+          if (altSpace) {
+            altSpace.appendChild(btn);
+          } else if (header && toggle) {
+            header.insertBefore(btn, toggle.nextSibling);
+          } else {
+            const container = document.querySelector('.container') || document.body;
+            container.appendChild(btn);
+          }
         }
       }
 
       function closeAltMode() {
-        document.body.classList.remove("alt-mode");
-        const btn = document.getElementById("alt-close");
-        if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
-        // revert to default diff logic (diff2)
-        try {
-          if (typeof showDiff === "function") showDiff();
-        } catch (e) {
-          console.error(e);
-        }
-        const t = document.getElementById("page-title");
-        if (t)
-          t.textContent = "html string diffing tool - diffArrays of tokens";
+        activateEngine(DEFAULT_ENGINE);
       }
 
-      function runAltDiff() {
-        function callAlt() {
+      function activateEngine(engineKey) {
+        const config = ENGINE_CONFIGS[engineKey];
+        if (!config) return;
+
+        function runEngine() {
+          const api = window[config.globalName];
+          if (!api) {
+            console.error("Engine did not export expected API:", config.globalName);
+            return;
+          }
+          activeEngine = engineKey;
+          applyEngineApi(api);
+          syncEngineUi(engineKey);
           try {
-            window.DiffAlt.showDiff();
-            enterAltMode();
+            if (typeof window.showDiff === "function") window.showDiff();
           } catch (e) {
             console.error(e);
           }
         }
 
-        if (window.DiffAlt && typeof window.DiffAlt.showDiff === "function") {
-          callAlt();
+        if (window[config.globalName] && typeof window[config.globalName].showDiff === "function") {
+          runEngine();
           return;
         }
 
-        // Load script once and then run
         const s = document.createElement("script");
-        s.src = "diff.js";
+        s.src = config.script;
+        s.dataset.engine = engineKey;
         s.onload = function () {
-          if (window.DiffAlt && typeof window.DiffAlt.showDiff === "function") {
-            callAlt();
+          if (window[config.globalName] && typeof window[config.globalName].showDiff === "function") {
+            runEngine();
           } else {
-            console.error("Alternate diff engine did not export expected API.");
+            console.error("Engine did not export expected API:", config.globalName);
           }
         };
         s.onerror = function () {
-          console.error("Failed to load diff.js");
+          console.error("Failed to load", config.script);
         };
         document.body.appendChild(s);
       }
 
       document.addEventListener("DOMContentLoaded", function () {
-        const link = document.getElementById("test-alt-link");
-        if (link)
-          link.addEventListener("click", function (e) {
+        const tokensLink = document.getElementById("engine-tokens-link");
+        const wordsLink = document.getElementById("engine-words-link");
+
+        if (tokensLink) {
+          tokensLink.addEventListener("click", function (e) {
             e.preventDefault();
-            runAltDiff();
+            activateEngine("tokens");
           });
+        }
+
+        if (wordsLink) {
+          wordsLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            activateEngine("words");
+          });
+        }
+
+        activateEngine(DEFAULT_ENGINE);
       });
     </script>
-    <script src="diff2.js"></script>
+    <script src="diff3.js"></script>
   </body>
 </html>

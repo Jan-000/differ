@@ -73,7 +73,7 @@ console.log("running diff3");
 
 		const newSpan = document.createElement("span");
 		newSpan.setAttribute("data-bg", "blue-highlight");
-		newSpan.style.backgroundColor = "lightblue";
+		newSpan.style.backgroundColor = "#20bfd4";
 
 		try {
 			range.surroundContents(newSpan);
@@ -407,5 +407,5 @@ console.log("running diff3");
 
 	try {
 		window.DiffNewest = exports;
-	} catch (error) {}
+	} catch (error) { }
 })(typeof window !== "undefined" ? {} : {});

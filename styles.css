@@ -1,14 +1,15 @@
 :root {
   --bg: #f5f7fb;
   --card: #ffffff;
-  --muted: #6b7280;
-  --accent: #6c5ce7;
+  --muted: #747a85;
+  --accent: #747a85;
   --text: #0f172a;
 }
 
 * {
   box-sizing: border-box;
 }
+
 body {
   font-family:
     Inter,
@@ -30,6 +31,7 @@ body {
   width: 100%;
   max-width: 1100px;
 }
+
 h1 {
   font-weight: 600;
   font-size: 1.25rem;
@@ -42,6 +44,7 @@ h1 {
   flex-wrap: wrap;
   margin-bottom: 1rem;
 }
+
 .input-column,
 .diff-column {
   flex: 1 1 45%;
@@ -53,6 +56,7 @@ h1 {
   gap: 0.5rem;
   margin-bottom: 0.5rem;
 }
+
 .toolbar-btn {
   background: transparent;
   border: 1px solid transparent;
@@ -63,12 +67,14 @@ h1 {
   color: var(--muted);
   transition: all 0.12s ease;
 }
+
 .toolbar-btn:hover {
   background: rgba(2, 6, 23, 0.04);
   color: var(--accent);
 }
+
 .color-btn {
-  background: linear-gradient(135deg, #eef2ff, #f7f3ff);
+  background: #c2a4ff;
   border: 1px solid rgba(99, 102, 241, 0.08);
   color: var(--accent);
 }
@@ -90,16 +96,19 @@ h1 {
     border-color 0.15s ease;
   position: relative;
 }
+
 .styled-input:focus {
   box-shadow: 0 6px 18px rgba(99, 102, 241, 0.12);
   border-color: rgba(99, 102, 241, 0.28);
 }
+
 .styled-input:empty:before {
   content: attr(data-placeholder);
   color: #9ca3af;
   pointer-events: none;
   display: block;
 }
+
 .styled-input span[style*="background"] {
   padding: 0 2px;
   border-radius: 3px;
@@ -110,6 +119,7 @@ h1 {
   justify-content: flex-start;
   margin: 0.5rem 0;
 }
+
 button.primary {
   background: var(--accent);
   color: white;
@@ -120,6 +130,7 @@ button.primary {
   box-shadow: 0 6px 18px rgba(99, 102, 241, 0.12);
   transition: transform 0.08s ease;
 }
+
 button.primary:hover {
   transform: translateY(-1px);
 }
@@ -130,6 +141,7 @@ button.primary:hover {
   margin-top: 1.25rem;
   flex-wrap: wrap;
 }
+
 .diff-box {
   padding: 1rem;
   border-radius: 12px;
@@ -138,6 +150,7 @@ button.primary:hover {
   min-height: 80px;
   position: relative;
 }
+
 .diff-heading {
   margin: 0 0 0.5rem;
   font-size: 0.95rem;
@@ -146,20 +159,21 @@ button.primary:hover {
 }
 
 .added {
-  background: #ecfdf5;
+  background: #7affa2;
   color: #065f46;
   padding: 4px 6px;
   border-radius: 6px;
 }
+
 .removed {
-  background: #fff1f2;
+  background: #ff818a;
   color: #9f1239;
   padding: 4px 6px;
   border-radius: 6px;
 }
 
 .deleted {
-  background: #fff1f2;
+  background: #ff818a;
   color: #9f1239;
   padding: 4px 6px;
   border-radius: 6px;
@@ -172,11 +186,13 @@ button.primary:hover {
   position: absolute;
   z-index: 999;
 }
+
 .revert-button-left {
   background: #fff;
   border: 1px solid rgba(159, 18, 57, 0.08);
   color: #9f1239;
 }
+
 .revert-button-right {
   background: #fff;
   border: 1px solid rgba(6, 95, 70, 0.08);
@@ -191,6 +207,7 @@ mark[unchanged] {
   .inputs-row {
     flex-direction: column;
   }
+
   .input-column,
   .diff-column {
     flex-basis: 100%;
@@ -205,16 +222,20 @@ mark[unchanged] {
   gap: 1rem;
   margin-bottom: 0.5rem;
 }
+
 .header-actions {
   display: inline-flex;
   align-items: center;
 }
+
 .alt-space {
   /* reserve same space as the close button so icons don't shift */
-  width: 44px; /* 36px button + small gap */
+  width: 44px;
+  /* 36px button + small gap */
   height: 40px;
   display: inline-block;
 }
+
 .theme-toggle {
   background: transparent;
   border: 1px solid transparent;
@@ -233,10 +254,12 @@ mark[unchanged] {
   /* nudge left slightly for better alignment with header items */
   margin-left: -8px;
 }
+
 .theme-toggle:hover {
   background: rgba(2, 6, 23, 0.04);
   transform: translateY(-1px);
 }
+
 .theme-toggle svg {
   width: 18px;
   height: 18px;
@@ -246,8 +269,8 @@ mark[unchanged] {
 :root[data-theme="dark"] {
   --bg: #071024;
   --card: #071428;
-  --muted: #9aa6b2;
-  --accent: #8b5cf6;
+  --muted: #747a85;
+  --accent: #747a85;
   --text: #e6eef8;
 }
 
@@ -278,7 +301,8 @@ body.alt-mode .container {
   border-radius: 12px;
   padding: 1rem;
   box-shadow: 0 10px 30px rgba(2, 6, 23, 0.06);
-  position: relative; /* ensure absolute children position inside the container */
+  position: relative;
+  /* ensure absolute children position inside the container */
 }
 
 .alt-close {
@@ -319,6 +343,7 @@ body.alt-mode .container .alt-close {
   width: 100%;
   max-width: 1100px;
 }
+
 .about .about-body {
   padding: 0.5rem 0;
 }

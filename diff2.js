@@ -90,7 +90,7 @@ function applyBgColor(divId) {
         if (afterText) {
           const afterNode =
             parent.childNodes[
-              Array.prototype.indexOf.call(parent.childNodes, frag.lastChild)
+            Array.prototype.indexOf.call(parent.childNodes, frag.lastChild)
             ];
           newRange.setStartAfter(afterNode.previousSibling);
         } else {
@@ -102,7 +102,7 @@ function applyBgColor(divId) {
   } else {
     const newSpan = document.createElement("span");
     newSpan.setAttribute("data-bg", "blue-highlight");
-    newSpan.style.backgroundColor = "lightblue";
+    newSpan.style.backgroundColor = "#20bfd4";
 
     const text = range.toString();
     const collatedText = text.replace(/(\S)(\s+)/g, "$1$2"); // Collate spaces with preceding words
@@ -775,7 +775,7 @@ function toggleTheme() {
   applyTheme(next);
   try {
     localStorage.setItem("theme", next);
-  } catch (e) {}
+  } catch (e) { }
 }
 
 function initTheme() {

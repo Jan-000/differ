@@ -48,7 +48,7 @@
     if (!div.contains(range.commonAncestorContainer)) return;
 
     const markToToggle = findEnclosingMark(range);
-    if (markToToggle && markToToggle.style.background === "#e1d1ff") {
+    if (markToToggle && markToToggle.style.background === "#a87aff") {
       const parent = markToToggle.parentNode;
       while (markToToggle.firstChild) {
         parent.insertBefore(markToToggle.firstChild, markToToggle);
@@ -58,7 +58,7 @@
     }
 
     const mark = document.createElement("mark");
-    mark.style.background = "#e1d1ff";
+    mark.style.background = "#a87aff";
     try {
       range.surroundContents(mark);
     } catch (err) {
@@ -228,5 +228,5 @@
   // attach to window for easy runtime access
   try {
     window.DiffAlt = exports;
-  } catch (e) {}
+  } catch (e) { }
 })(typeof window !== "undefined" ? {} : {});

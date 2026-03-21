@@ -27,30 +27,7 @@ console.log("running diff3");
 		}
 	}
 
-	function findEnclosingBgSpan(range) {
-		const startNode =
-			range.startContainer.nodeType === Node.TEXT_NODE
-				? range.startContainer.parentElement
-				: range.startContainer;
 
-		let candidate = startNode && startNode.closest ? startNode.closest("span") : null;
-
-		while (candidate) {
-			if (
-				candidate.contains(range.startContainer) &&
-				candidate.contains(range.endContainer) &&
-				candidate.getAttribute("data-bg") === "blue-highlight"
-			) {
-				return candidate;
-			}
-
-			candidate = candidate.parentElement
-				? candidate.parentElement.closest("span")
-				: null;
-		}
-
-		return null;
-	}
 
 	function applyBgColor(divId) {
 		const div = document.getElementById(divId);
@@ -61,18 +38,7 @@ console.log("running diff3");
 		if (range.collapsed) return;
 		if (!div.contains(range.commonAncestorContainer)) return;
 
-		const spanToToggle = findEnclosingBgSpan(range);
-		if (spanToToggle) {
-			const parent = spanToToggle.parentNode;
-			while (spanToToggle.firstChild) {
-				parent.insertBefore(spanToToggle.firstChild, spanToToggle);
-			}
-			parent.removeChild(spanToToggle);
-			return;
-		}
-
 		const newSpan = document.createElement("span");
-		newSpan.setAttribute("data-bg", "blue-highlight");
 		newSpan.style.backgroundColor = "#20bfd4";
 
 		try {
@@ -191,10 +157,6 @@ console.log("running diff3");
 		return String(text).replace(/[&<>"']/g, (match) => map[match]);
 	}
 
-	function formatTokens(tokens) {
-		return JSON.stringify(tokens, null, 2);
-	}
-
 	// ─────────────────────────────────────────────────────────────────────────
 	// STAGE 2 — Text Extraction (Flattening)
 	// Concatenate token texts into a single plain string so the diff
@@ -203,14 +165,6 @@ console.log("running diff3");
 
 	function concatenateTokensToText(tokens) {
 		return tokens.map((token) => token.text).join("");
-	}
-
-	function renderTokenDebug(tokens) {
-		return `<pre>${escapeHtml(formatTokens(tokens))}</pre>`;
-	}
-
-	function renderPlainTextDebug(label, text) {
-		return `<pre>${escapeHtml(label)} = ${escapeHtml(JSON.stringify(text))}</pre>`;
 	}
 
 	// ─────────────────────────────────────────────────────────────────────────
@@ -325,10 +279,6 @@ console.log("running diff3");
 
 			return alignedPart;
 		});
-	}
-
-	function renderJsonDebug(label, value) {
-		return `<pre>${escapeHtml(label)} = ${escapeHtml(JSON.stringify(value, null, 2))}</pre>`;
 	}
 
 	function escapeAttr(value) {

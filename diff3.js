@@ -60,6 +60,12 @@ console.log("running diff3");
 		return String(styleValue || "")
 			.split(";")
 			.map((part) => part.trim())
+			.filter((part) => {
+				const colonIndex = part.indexOf(":");
+				if (colonIndex === -1) return true;
+				const propertyName = part.slice(0, colonIndex).trim().toLowerCase();
+				return propertyName !== "font-size";
+			})
 			.filter(Boolean)
 			.join("; ");
 	}

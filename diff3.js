@@ -339,158 +339,64 @@ console.log("running diff3");
 
 	// ─────────────────────────────────────────────────────────────────────────
 	// STAGE 6 — Segment Merging + Side HTML Assembly
-	// Build per-side HTML and merge adjacent changed runs. If a whitespace-only
-	// equal chunk sits between two changed runs on the same side, absorb it so
-	// highlights read as one continuous phrase.
+	// Build both outputs from aligned diff parts in one pass so unchanged
+	// segments receive shared left/right identifiers at the source.
 	// ─────────────────────────────────────────────────────────────────────────
 
-	function buildSideHtmlFromAligned(alignedParts, side) {
-		let html = "";
-
-		const isChangedForSide = (part) => (side === "left" ? !!part.removed : !!part.added);
-		const getSlicesForSide = (part) => (side === "left" ? part.beforeTokens : part.afterTokens);
-		const markClass = side === "left" ? "deleted" : "added";
-
-		let activeChangedHtml = "";
-
-		function flushActiveChanged() {
-			if (!activeChangedHtml) return;
-			html += `<mark class="${markClass}">${activeChangedHtml}</mark>`;
-			activeChangedHtml = "";
-		}
-
-		function hasUpcomingChangedForSide(fromIndex) {
-			for (let lookahead = fromIndex; lookahead < alignedParts.length; lookahead += 1) {
-				const candidate = alignedParts[lookahead];
-
-				if (isChangedForSide(candidate)) {
-					return true;
-				}
-
-				if (candidate.equal) {
-					return false;
-				}
-
-				// Opposite-side changes do not render on this side; skip them.
-			}
-
-			return false;
-		}
-
-		for (let index = 0; index < alignedParts.length; index += 1) {
-			const part = alignedParts[index];
-
-			if (isChangedForSide(part)) {
-				activeChangedHtml += renderSlicesToHtml(getSlicesForSide(part));
-				continue;
-			}
-
-			if (part.equal) {
-				const equalHtml = renderSlicesToHtml(getSlicesForSide(part));
-				const bridgeWhitespace =
-					activeChangedHtml &&
-					isWhitespaceOnly(part.value) &&
-					hasUpcomingChangedForSide(index + 1);
-
-				if (bridgeWhitespace) {
-					activeChangedHtml += equalHtml;
-					continue;
-				}
-
-				flushActiveChanged();
-				html += equalHtml;
-				continue;
-			}
-
-			if (part.added || part.removed) {
-				// Opposite-side changes should not split highlight runs on this side.
-				continue;
-			}
-
-			flushActiveChanged();
-		}
-
-		flushActiveChanged();
-
-		return html || '<span style="color:#aaa">(none)</span>';
+	function wrapEqualHtml(equalHtml, unchangedIndex) {
+		if (!equalHtml) return "";
+		return `<mark diffing-unchanged-${unchangedIndex}>${equalHtml}</mark>`;
 	}
 
-	function isMarkNode(node) {
-		return node && node.nodeType === Node.ELEMENT_NODE && node.tagName === "MARK";
-	}
+	function buildBothSideHtmlFromAligned(alignedParts) {
+		let leftHtml = "";
+		let rightHtml = "";
 
-	function isNonePlaceholder(container) {
-		if (!container) return false;
-		if (container.childNodes.length !== 1) return false;
+		let activeLeftChanged = "";
+		let activeRightChanged = "";
+		let unchangedIndex = 1;
 
-		const onlyChild = container.firstChild;
-		if (!onlyChild || onlyChild.nodeType !== Node.ELEMENT_NODE) return false;
+		function flushChanged() {
+			if (activeLeftChanged) {
+				leftHtml += `<mark class="deleted">${activeLeftChanged}</mark>`;
+				activeLeftChanged = "";
+			}
 
-		return String(onlyChild.textContent || "").trim() === "(none)";
-	}
+			if (activeRightChanged) {
+				rightHtml += `<mark class="added">${activeRightChanged}</mark>`;
+				activeRightChanged = "";
+			}
+		}
 
-	function collectUnmarkedRuns(container) {
-		const runs = [];
-		let currentRun = [];
-
-		Array.from(container.childNodes).forEach((node) => {
-			if (isMarkNode(node)) {
-				if (currentRun.length) {
-					runs.push(currentRun);
-					currentRun = [];
-				}
+		alignedParts.forEach((part) => {
+			if (part.removed) {
+				activeLeftChanged += renderSlicesToHtml(part.beforeTokens);
 				return;
 			}
 
-			currentRun.push(node);
+			if (part.added) {
+				activeRightChanged += renderSlicesToHtml(part.afterTokens);
+				return;
+			}
+
+			if (part.equal) {
+				flushChanged();
+
+				const leftEqualHtml = renderSlicesToHtml(part.beforeTokens);
+				const rightEqualHtml = renderSlicesToHtml(part.afterTokens);
+
+				leftHtml += wrapEqualHtml(leftEqualHtml, unchangedIndex);
+				rightHtml += wrapEqualHtml(rightEqualHtml, unchangedIndex);
+				unchangedIndex += 1;
+			}
 		});
 
-		if (currentRun.length) {
-			runs.push(currentRun);
-		}
+		flushChanged();
 
-		return runs;
-	}
-
-	function wrapRunInMark(runNodes, attrName) {
-		if (!runNodes || !runNodes.length) return;
-
-		const firstNode = runNodes[0];
-		const parent = firstNode.parentNode;
-		if (!parent) return;
-
-		const wrapper = document.createElement("mark");
-		wrapper.setAttribute(attrName, "");
-
-		parent.insertBefore(wrapper, firstNode);
-		runNodes.forEach((node) => wrapper.appendChild(node));
-	}
-
-	function wrapUnchangedOutputs(leftContainer, rightContainer) {
-		if (!leftContainer || !rightContainer) return;
-		if (isNonePlaceholder(leftContainer) || isNonePlaceholder(rightContainer)) return;
-
-		const leftRuns = collectUnmarkedRuns(leftContainer);
-		const rightRuns = collectUnmarkedRuns(rightContainer);
-
-		const pairedCount = Math.min(leftRuns.length, rightRuns.length);
-		let nextUnpairedId = pairedCount + 1;
-
-		for (let index = 0; index < pairedCount; index += 1) {
-			const sharedId = index + 1;
-			wrapRunInMark(leftRuns[index], `diffing-unchanged-${sharedId}`);
-			wrapRunInMark(rightRuns[index], `diffing-unchanged-${sharedId}`);
-		}
-
-		for (let index = pairedCount; index < leftRuns.length; index += 1) {
-			wrapRunInMark(leftRuns[index], `diffing-unchanged-${nextUnpairedId}`);
-			nextUnpairedId += 1;
-		}
-
-		for (let index = pairedCount; index < rightRuns.length; index += 1) {
-			wrapRunInMark(rightRuns[index], `diffing-unchanged-${nextUnpairedId}`);
-			nextUnpairedId += 1;
-		}
+		return {
+			left: leftHtml || '<span style="color:#aaa">(none)</span>',
+			right: rightHtml || '<span style="color:#aaa">(none)</span>',
+		};
 	}
 
 	function showDiff() {
@@ -521,8 +427,7 @@ console.log("running diff3");
 		// — Stage 5: Slice Rendering (Inline Markup Reconstruction) —
 		// Implemented during rendering via renderSlicesToHtml/renderMarksWrapped.
 		// — Stage 6: Segment Merging + Side HTML Assembly —
-		const leftHtml = buildSideHtmlFromAligned(alignedDiffParts, "left");
-		const rightHtml = buildSideHtmlFromAligned(alignedDiffParts, "right");
+		const sideHtml = buildBothSideHtmlFromAligned(alignedDiffParts);
 
 		console.log("diff3 before tokens:", beforeTokens);
 		console.log("diff3 after tokens:", afterTokens);
@@ -532,11 +437,8 @@ console.log("running diff3");
 		console.log("diff3 alignedDiffParts:", alignedDiffParts);
 
 		// — Stage 7: Final Output Generation (Before / After Views) —
-		diffLeft.innerHTML = leftHtml;
-		diffRight.innerHTML = rightHtml;
-
-		// — Stage 8: Post-processing unchanged runs across both outputs —
-		wrapUnchangedOutputs(diffLeft, diffRight);
+		diffLeft.innerHTML = sideHtml.left;
+		diffRight.innerHTML = sideHtml.right;
 	}
 
 	exports.applyStyle = applyStyle;

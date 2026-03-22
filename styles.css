@@ -266,6 +266,18 @@ mark[unchanged] {
   display: block;
 }
 
+.theme-toggle .icon {
+  display: none;
+}
+
+:root:not([data-theme="dark"]) .theme-toggle .icon-sun {
+  display: block;
+}
+
+:root[data-theme="dark"] .theme-toggle .icon-moon {
+  display: block;
+}
+
 :root[data-theme="dark"] {
   --bg: #071024;
   --card: #071428;

@@ -218,6 +218,74 @@
       };
       const DEFAULT_ENGINE = "newest";
       let activeEngine = DEFAULT_ENGINE;
+      let prefersDarkMql = null;
+
+      function hasStoredTheme() {
+        try {
+          const stored = localStorage.getItem("theme");
+          return stored === "dark" || stored === "light";
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function getPreferredTheme() {
+        try {
+          const stored = localStorage.getItem("theme");
+          if (stored === "dark" || stored === "light") return stored;
+        } catch (e) {}
+
+        if (window.matchMedia) {
+          return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+
+        return getResolvedTheme();
+      }
+
+      function getResolvedTheme() {
+        const root = document.documentElement;
+        return root.getAttribute("data-theme") === "dark" ? "dark" : "light";
+      }
+
+      function applyTheme(theme) {
+        const root = document.documentElement;
+        if (theme === "dark") {
+          root.setAttribute("data-theme", "dark");
+        } else {
+          root.removeAttribute("data-theme");
+        }
+
+        const toggle = document.getElementById("theme-toggle");
+        if (toggle) {
+          const isDark = theme === "dark";
+          toggle.setAttribute("aria-pressed", String(isDark));
+          toggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+          toggle.title = isDark ? "Switch to light mode" : "Switch to dark mode";
+        }
+      }
+
+      function toggleTheme() {
+        const current = getResolvedTheme();
+        const next = current === "dark" ? "light" : "dark";
+        applyTheme(next);
+        try {
+          localStorage.setItem("theme", next);
+        } catch (e) {}
+      }
+
+      function initThemeControls() {
+        applyTheme(getPreferredTheme());
+
+        if (!window.matchMedia) return;
+
+        try {
+          prefersDarkMql = window.matchMedia("(prefers-color-scheme: dark)");
+          prefersDarkMql.addEventListener("change", function (event) {
+            if (hasStoredTheme()) return;
+            applyTheme(event.matches ? "dark" : "light");
+          });
+        } catch (e) {}
+      }
 
       function applyEngineApi(api) {
         if (!api) return;
@@ -307,8 +375,15 @@
       }
 
       document.addEventListener("DOMContentLoaded", function () {
+        const themeToggle = document.getElementById("theme-toggle");
         const tokensLink = document.getElementById("engine-tokens-link");
         const wordsLink = document.getElementById("engine-words-link");
+
+        initThemeControls();
+
+        if (themeToggle) {
+          themeToggle.addEventListener("click", toggleTheme);
+        }
 
         if (tokensLink) {
           tokensLink.addEventListener("click", function (e) {

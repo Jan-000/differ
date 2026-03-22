@@ -292,9 +292,9 @@ console.log("running diff3");
 	}
 
 	// ─────────────────────────────────────────────────────────────────────────
-	// STAGE 5 — Diff Annotation (Assign Types)
-	// Wrap aligned token slices in <mark class="deleted|added"> elements
-	// according to their diff type, rebuilding inline markup around each slice.
+	// STAGE 5 — Slice Rendering (Inline Markup Reconstruction)
+	// Rebuild inline formatting for each aligned text slice (b/i/u/span),
+	// preserving original marks while keeping text safely escaped.
 	// ─────────────────────────────────────────────────────────────────────────
 
 	function renderMarksWrapped(text, marks) {
@@ -338,9 +338,10 @@ console.log("running diff3");
 	}
 
 	// ─────────────────────────────────────────────────────────────────────────
-	// STAGE 6 — Final Output Generation (Before / After Views)
-	// Annotate diff parts with <mark class="deleted|added"> and assemble the
-	// full HTML string for each side (left = before, right = after).
+	// STAGE 6 — Segment Merging + Side HTML Assembly
+	// Build per-side HTML and merge adjacent changed runs. If a whitespace-only
+	// equal chunk sits between two changed runs on the same side, absorb it so
+	// highlights read as one continuous phrase.
 	// ─────────────────────────────────────────────────────────────────────────
 
 	function buildSideHtmlFromAligned(alignedParts, side) {
@@ -439,10 +440,11 @@ console.log("running diff3");
 		// — Stage 4: Token Alignment (Splitting to Diff Boundaries) —
 		const alignedDiffParts = alignDiffChunksWithTokenSlices(diffParts, beforeTokens, afterTokens);
 
-		// — Stage 5: Diff Annotation (Assign Types) —
-		// Implemented during rendering via buildSideHtmlFromAligned/renderSlicesToHtml.
-		// — Stage 7: Segment Merging (Normalize Adjacent Blocks) —
-		// Implemented in buildSideHtmlFromAligned via activeChangedHtml buffering.
+		// — Stage 5: Slice Rendering (Inline Markup Reconstruction) —
+		// Implemented during rendering via renderSlicesToHtml/renderMarksWrapped.
+		// — Stage 6: Segment Merging + Side HTML Assembly —
+		const leftHtml = buildSideHtmlFromAligned(alignedDiffParts, "left");
+		const rightHtml = buildSideHtmlFromAligned(alignedDiffParts, "right");
 
 		console.log("diff3 before tokens:", beforeTokens);
 		console.log("diff3 after tokens:", afterTokens);
@@ -451,9 +453,9 @@ console.log("running diff3");
 		console.log("diff3 diffWords:", diffParts);
 		console.log("diff3 alignedDiffParts:", alignedDiffParts);
 
-		// — Stage 6: Final Output Generation (Before / After Views) —
-		diffLeft.innerHTML = buildSideHtmlFromAligned(alignedDiffParts, "left");
-		diffRight.innerHTML = buildSideHtmlFromAligned(alignedDiffParts, "right");
+		// — Stage 7: Final Output Generation (Before / After Views) —
+		diffLeft.innerHTML = leftHtml;
+		diffRight.innerHTML = rightHtml;
 	}
 
 	exports.applyStyle = applyStyle;

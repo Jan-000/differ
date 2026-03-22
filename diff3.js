@@ -415,6 +415,84 @@ console.log("running diff3");
 		return html || '<span style="color:#aaa">(none)</span>';
 	}
 
+	function isMarkNode(node) {
+		return node && node.nodeType === Node.ELEMENT_NODE && node.tagName === "MARK";
+	}
+
+	function isNonePlaceholder(container) {
+		if (!container) return false;
+		if (container.childNodes.length !== 1) return false;
+
+		const onlyChild = container.firstChild;
+		if (!onlyChild || onlyChild.nodeType !== Node.ELEMENT_NODE) return false;
+
+		return String(onlyChild.textContent || "").trim() === "(none)";
+	}
+
+	function collectUnmarkedRuns(container) {
+		const runs = [];
+		let currentRun = [];
+
+		Array.from(container.childNodes).forEach((node) => {
+			if (isMarkNode(node)) {
+				if (currentRun.length) {
+					runs.push(currentRun);
+					currentRun = [];
+				}
+				return;
+			}
+
+			currentRun.push(node);
+		});
+
+		if (currentRun.length) {
+			runs.push(currentRun);
+		}
+
+		return runs;
+	}
+
+	function wrapRunInMark(runNodes, attrName) {
+		if (!runNodes || !runNodes.length) return;
+
+		const firstNode = runNodes[0];
+		const parent = firstNode.parentNode;
+		if (!parent) return;
+
+		const wrapper = document.createElement("mark");
+		wrapper.setAttribute(attrName, "");
+
+		parent.insertBefore(wrapper, firstNode);
+		runNodes.forEach((node) => wrapper.appendChild(node));
+	}
+
+	function wrapUnchangedOutputs(leftContainer, rightContainer) {
+		if (!leftContainer || !rightContainer) return;
+		if (isNonePlaceholder(leftContainer) || isNonePlaceholder(rightContainer)) return;
+
+		const leftRuns = collectUnmarkedRuns(leftContainer);
+		const rightRuns = collectUnmarkedRuns(rightContainer);
+
+		const pairedCount = Math.min(leftRuns.length, rightRuns.length);
+		let nextUnpairedId = pairedCount + 1;
+
+		for (let index = 0; index < pairedCount; index += 1) {
+			const sharedId = index + 1;
+			wrapRunInMark(leftRuns[index], `diffing-unchanged-${sharedId}`);
+			wrapRunInMark(rightRuns[index], `diffing-unchanged-${sharedId}`);
+		}
+
+		for (let index = pairedCount; index < leftRuns.length; index += 1) {
+			wrapRunInMark(leftRuns[index], `diffing-unchanged-${nextUnpairedId}`);
+			nextUnpairedId += 1;
+		}
+
+		for (let index = pairedCount; index < rightRuns.length; index += 1) {
+			wrapRunInMark(rightRuns[index], `diffing-unchanged-${nextUnpairedId}`);
+			nextUnpairedId += 1;
+		}
+	}
+
 	function showDiff() {
 		const inputA = document.getElementById("inputA");
 		const inputB = document.getElementById("inputB");
@@ -456,6 +534,9 @@ console.log("running diff3");
 		// — Stage 7: Final Output Generation (Before / After Views) —
 		diffLeft.innerHTML = leftHtml;
 		diffRight.innerHTML = rightHtml;
+
+		// — Stage 8: Post-processing unchanged runs across both outputs —
+		wrapUnchangedOutputs(diffLeft, diffRight);
 	}
 
 	exports.applyStyle = applyStyle;

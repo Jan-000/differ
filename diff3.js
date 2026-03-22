@@ -333,6 +333,10 @@ console.log("running diff3");
 		return slices.map((s) => renderMarksWrapped(s.text, s.marks)).join("");
 	}
 
+	function isWhitespaceOnly(text) {
+		return /^\s+$/.test(String(text || ""));
+	}
+
 	// ─────────────────────────────────────────────────────────────────────────
 	// STAGE 6 — Final Output Generation (Before / After Views)
 	// Annotate diff parts with <mark class="deleted|added"> and assemble the
@@ -341,21 +345,72 @@ console.log("running diff3");
 
 	function buildSideHtmlFromAligned(alignedParts, side) {
 		let html = "";
-		alignedParts.forEach((part) => {
-			if (side === "left") {
-				if (part.removed) {
-					html += `<mark class="deleted">${renderSlicesToHtml(part.beforeTokens)}</mark>`;
-				} else if (part.equal) {
-					html += renderSlicesToHtml(part.beforeTokens);
+
+		const isChangedForSide = (part) => (side === "left" ? !!part.removed : !!part.added);
+		const getSlicesForSide = (part) => (side === "left" ? part.beforeTokens : part.afterTokens);
+		const markClass = side === "left" ? "deleted" : "added";
+
+		let activeChangedHtml = "";
+
+		function flushActiveChanged() {
+			if (!activeChangedHtml) return;
+			html += `<mark class="${markClass}">${activeChangedHtml}</mark>`;
+			activeChangedHtml = "";
+		}
+
+		function hasUpcomingChangedForSide(fromIndex) {
+			for (let lookahead = fromIndex; lookahead < alignedParts.length; lookahead += 1) {
+				const candidate = alignedParts[lookahead];
+
+				if (isChangedForSide(candidate)) {
+					return true;
 				}
-			} else if (side === "right") {
-				if (part.added) {
-					html += `<mark class="added">${renderSlicesToHtml(part.afterTokens)}</mark>`;
-				} else if (part.equal) {
-					html += renderSlicesToHtml(part.afterTokens);
+
+				if (candidate.equal) {
+					return false;
 				}
+
+				// Opposite-side changes do not render on this side; skip them.
 			}
-		});
+
+			return false;
+		}
+
+		for (let index = 0; index < alignedParts.length; index += 1) {
+			const part = alignedParts[index];
+
+			if (isChangedForSide(part)) {
+				activeChangedHtml += renderSlicesToHtml(getSlicesForSide(part));
+				continue;
+			}
+
+			if (part.equal) {
+				const equalHtml = renderSlicesToHtml(getSlicesForSide(part));
+				const bridgeWhitespace =
+					activeChangedHtml &&
+					isWhitespaceOnly(part.value) &&
+					hasUpcomingChangedForSide(index + 1);
+
+				if (bridgeWhitespace) {
+					activeChangedHtml += equalHtml;
+					continue;
+				}
+
+				flushActiveChanged();
+				html += equalHtml;
+				continue;
+			}
+
+			if (part.added || part.removed) {
+				// Opposite-side changes should not split highlight runs on this side.
+				continue;
+			}
+
+			flushActiveChanged();
+		}
+
+		flushActiveChanged();
+
 		return html || '<span style="color:#aaa">(none)</span>';
 	}
 
@@ -386,7 +441,8 @@ console.log("running diff3");
 
 		// — Stage 5: Diff Annotation (Assign Types) —
 		// Implemented during rendering via buildSideHtmlFromAligned/renderSlicesToHtml.
-		// TODO — Stage 7: Segment Merging (Normalize Adjacent Blocks) —
+		// — Stage 7: Segment Merging (Normalize Adjacent Blocks) —
+		// Implemented in buildSideHtmlFromAligned via activeChangedHtml buffering.
 
 		console.log("diff3 before tokens:", beforeTokens);
 		console.log("diff3 after tokens:", afterTokens);

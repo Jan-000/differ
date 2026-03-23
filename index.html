@@ -83,19 +83,21 @@
           <div class="alt-space" aria-hidden="true"></div>
         </div>
       </div>
-      <div id="reference-pane" class="reference-pane reference-pane-collapsed">
-        <div class="reference-pane-header" onclick="toggleReferenceSidebar()">
-          <span class="reference-arrow">▸</span>
-          <h3>Original Diff Reference</h3>
-        </div>
-        <div class="reference-pane-content">
-          <div class="reference-column">
-            <h4>Deletions</h4>
-            <div class="ref-box" id="ref-left"></div>
+      <div id="reference-pane-shell" class="reference-pane-shell reference-pane-shell-hidden">
+        <div id="reference-pane" class="reference-pane reference-pane-hidden reference-pane-collapsed">
+          <div class="reference-pane-header" onclick="toggleReferenceSidebar()">
+            <span class="reference-arrow">▸</span>
+            <h3>Show original inputs</h3>
           </div>
-          <div class="reference-column">
-            <h4>Additions</h4>
-            <div class="ref-box" id="ref-right"></div>
+          <div class="reference-pane-content">
+            <div class="reference-column">
+              <h4>Deletions</h4>
+              <div class="ref-box" id="ref-left"></div>
+            </div>
+            <div class="reference-column">
+              <h4>Additions</h4>
+              <div class="ref-box" id="ref-right"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -295,8 +297,10 @@
 
       function toggleReferenceSidebar() {
         const pane = document.getElementById("reference-pane");
-        if (pane) {
-          pane.classList.toggle("reference-pane-collapsed");
+        const shell = document.getElementById("reference-pane-shell");
+        if (pane && shell && !pane.classList.contains("reference-pane-hidden")) {
+          const isCollapsed = pane.classList.toggle("reference-pane-collapsed");
+          shell.classList.toggle("reference-pane-shell-expanded", !isCollapsed);
         }
       }
 

@@ -150,20 +150,49 @@ button.secondary:hover {
   background: rgba(2, 6, 23, 0.04);
 }
 
+.reference-pane-shell {
+  position: relative;
+  max-height: 40px;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.35s ease;
+}
+
+.reference-pane-shell.reference-pane-shell-hidden {
+  max-height: 0;
+  margin-bottom: 0;
+}
+
+.reference-pane-shell.reference-pane-shell-expanded {
+  max-height: 500px;
+  margin-bottom: 1.25rem;
+}
+
 .reference-pane {
+  position: relative;
   width: 100%;
   background: rgba(15, 23, 42, 0.02);
   border: 1px solid rgba(15, 23, 42, 0.04);
   border-radius: 8px;
-  margin-bottom: 1.25rem;
   overflow: hidden;
-  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.35s ease;
   max-height: 500px;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.28s ease,
+    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reference-pane.reference-pane-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-12px);
 }
 
 .reference-pane.reference-pane-collapsed {
   max-height: 40px;
-  margin-bottom: 0.75rem;
 }
 
 .reference-pane-header {
@@ -336,43 +365,118 @@ button.secondary:hover {
 }
 
 .revert-button {
-  padding: 6px 10px;
-  font-size: 12px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 0;
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 4px 12px rgba(2, 6, 23, 0.08);
+  transition:
+    background 0.14s ease,
+    border-color 0.14s ease,
+    color 0.14s ease,
+    transform 0.08s ease;
 }
 
 .accept-button {
-  padding: 6px 10px;
-  font-size: 12px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 0;
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 4px 12px rgba(2, 6, 23, 0.08);
+  transition:
+    background 0.14s ease,
+    border-color 0.14s ease,
+    color 0.14s ease,
+    transform 0.08s ease;
+}
+
+.revert-button:hover,
+.accept-button:hover {
+  transform: translateY(-1px);
+}
+
+.revert-button svg,
+.accept-button svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.revert-button::after,
+.accept-button::after {
+  content: attr(data-hover-label);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  padding: 6px 8px;
+  border-radius: 7px;
+  background: rgba(15, 23, 42, 0.88);
+  color: rgba(255, 255, 255, 0.96);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.18);
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease,
+    visibility 0s linear 0.16s;
+}
+
+.revert-button:hover::after,
+.accept-button:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  transition-delay: 2500ms, 2500ms, 2500ms;
 }
 
 .revert-button-left {
-  background: #fff;
-  border: 1px solid rgba(159, 18, 57, 0.08);
-  color: #9f1239;
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .revert-button-right {
-  background: #fff;
-  border: 1px solid rgba(6, 95, 70, 0.08);
-  color: #065f46;
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .accept-button-left {
-  background: #fff;
-  border: 1px solid rgba(159, 18, 57, 0.14);
-  color: #9f1239;
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .accept-button-right {
-  background: #fff;
-  border: 1px solid rgba(6, 95, 70, 0.14);
-  color: #065f46;
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 mark[unchanged] {

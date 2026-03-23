@@ -450,8 +450,8 @@ console.log("running diff3");
 		flushChanged(0);
 
 		return {
-			left: leftHtml || '<span style="color:#aaa">(none)</span>',
-			right: rightHtml || '<span style="color:#aaa">(none)</span>',
+			left: leftHtml,
+			right: rightHtml,
 		};
 	}
 
@@ -463,6 +463,24 @@ console.log("running diff3");
 	let inputsAreInDiffMode = false;
 	let referenceLeftHtml = null;
 	let referenceRightHtml = null;
+	let hasShownReferencePane = false;
+
+	function revealReferencePane() {
+		const refPane = document.getElementById("reference-pane");
+		const refPaneShell = document.getElementById("reference-pane-shell");
+		const refLeft = document.getElementById("ref-left");
+		const refRight = document.getElementById("ref-right");
+
+		if (!refPane || !refPaneShell || !refLeft || !refRight || hasShownReferencePane) return;
+
+		refLeft.innerHTML = referenceLeftHtml || "";
+		refRight.innerHTML = referenceRightHtml || "";
+		refPaneShell.classList.remove("reference-pane-shell-hidden");
+		refPane.classList.remove("reference-pane-hidden");
+		refPane.classList.add("reference-pane-collapsed");
+		refPaneShell.classList.remove("reference-pane-shell-expanded");
+		hasShownReferencePane = true;
+	}
 
 	function getChangedMarkFromEventTarget(target) {
 		if (!target || !(target instanceof Element)) return null;
@@ -709,6 +727,8 @@ console.log("running diff3");
 	function rejectMark(mark) {
 		if (!mark) return;
 
+		revealReferencePane();
+
 		const { deletionMark, additionMark, hasCorrespondingChange } = getChangedBlock(mark);
 
 		if (hasCorrespondingChange) {
@@ -736,6 +756,8 @@ console.log("running diff3");
 
 	function acceptMark(mark) {
 		if (!mark) return;
+
+		revealReferencePane();
 
 		const { deletionMark, additionMark, hasCorrespondingChange } = getChangedBlock(mark);
 
@@ -776,7 +798,12 @@ console.log("running diff3");
 		const rejectButton = document.createElement("button");
 		rejectButton.type = "button";
 		rejectButton.className = "revert-button";
-		rejectButton.textContent = "Reject";
+		rejectButton.setAttribute("aria-label", "Reject change");
+		rejectButton.setAttribute("data-hover-label", "Reject");
+		rejectButton.innerHTML = `
+			<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+				<path d="M18.3 5.71 12 12l6.3 6.29-1.41 1.41L10.59 13.41 4.29 19.7 2.88 18.29 9.17 12 2.88 5.71 4.29 4.3l6.3 6.29 6.29-6.3z" fill="currentColor"/>
+			</svg>`;
 		rejectButton.addEventListener("click", (event) => {
 			event.preventDefault();
 			event.stopPropagation();
@@ -786,7 +813,12 @@ console.log("running diff3");
 		const acceptButton = document.createElement("button");
 		acceptButton.type = "button";
 		acceptButton.className = "accept-button";
-		acceptButton.textContent = "Accept";
+		acceptButton.setAttribute("aria-label", "Accept change");
+		acceptButton.setAttribute("data-hover-label", "Accept");
+		acceptButton.innerHTML = `
+			<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+				<path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/>
+			</svg>`;
 		acceptButton.addEventListener("click", (event) => {
 			event.preventDefault();
 			event.stopPropagation();
@@ -940,15 +972,20 @@ console.log("running diff3");
 		referenceLeftHtml = inputA.innerHTML;
 		referenceRightHtml = inputB.innerHTML;
 
-		// Populate reference sidebar with marked diff
-		refLeft.innerHTML = referenceLeftHtml;
-		refRight.innerHTML = referenceRightHtml;
-
-		// Ensure reference pane is visible and collapsed
+		// Reset reference pane until the first resolve action reveals it.
 		const refPane = document.getElementById("reference-pane");
+		const refPaneShell = document.getElementById("reference-pane-shell");
 		if (refPane) {
+			refPane.classList.add("reference-pane-hidden");
 			refPane.classList.add("reference-pane-collapsed");
 		}
+		if (refPaneShell) {
+			refPaneShell.classList.remove("reference-pane-shell-hidden");
+			refPaneShell.classList.remove("reference-pane-shell-expanded");
+		}
+		refLeft.innerHTML = "";
+		refRight.innerHTML = "";
+		hasShownReferencePane = false;
 
 		removeActionsPanel();
 		bindOutputInteractionsOnce();

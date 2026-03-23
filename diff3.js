@@ -458,6 +458,11 @@ console.log("running diff3");
 	let activeActionsPanel = null;
 	let selectedChangedMark = null;
 	let hasBoundDiffInteractions = false;
+	let cachedInputBeforeHtml = null;
+	let cachedInputAfterHtml = null;
+	let inputsAreInDiffMode = false;
+	let referenceLeftHtml = null;
+	let referenceRightHtml = null;
 
 	function getChangedMarkFromEventTarget(target) {
 		if (!target || !(target instanceof Element)) return null;
@@ -495,18 +500,18 @@ console.log("running diff3");
 		return 0;
 	}
 
-	function isInsideLeftOutput(mark) {
-		const diffLeft = document.getElementById("diff-left-resolve");
-		return Boolean(diffLeft && mark && diffLeft.contains(mark));
+	function isInsideLeftInput(mark) {
+		const inputA = document.getElementById("inputA");
+		return Boolean(inputA && mark && inputA.contains(mark));
 	}
 
 	function findCorrespondingMark(mark) {
 		const attrName = getChangeAttrName(mark);
 		if (!attrName) return null;
 
-		const sourceIsLeft = isInsideLeftOutput(mark);
+		const sourceIsLeft = isInsideLeftInput(mark);
 		const oppositeContainer = document.getElementById(
-			sourceIsLeft ? "diff-right-resolve" : "diff-left-resolve",
+			sourceIsLeft ? "inputB" : "inputA",
 		);
 		if (!oppositeContainer) return null;
 
@@ -625,18 +630,18 @@ console.log("running diff3");
 		targetContainer.appendChild(createFragmentFromHtml(htmlToInsert));
 	}
 
-	function insertHtmlAtMatchingSpotInRightOutput(sourceDeletionMark) {
+	function insertHtmlAtMatchingSpotInRightInput(sourceDeletionMark) {
 		if (!sourceDeletionMark) return;
-		const diffRight = document.getElementById("diff-right-resolve");
-		if (!diffRight) return;
-		insertHtmlAtMatchingSpot(diffRight, sourceDeletionMark);
+		const inputB = document.getElementById("inputB");
+		if (!inputB) return;
+		insertHtmlAtMatchingSpot(inputB, sourceDeletionMark);
 	}
 
-	function insertHtmlAtMatchingSpotInLeftOutput(sourceAdditionMark) {
+	function insertHtmlAtMatchingSpotInLeftInput(sourceAdditionMark) {
 		if (!sourceAdditionMark) return;
-		const diffLeft = document.getElementById("diff-left-resolve");
-		if (!diffLeft) return;
-		insertHtmlAtMatchingSpot(diffLeft, sourceAdditionMark);
+		const inputA = document.getElementById("inputA");
+		if (!inputA) return;
+		insertHtmlAtMatchingSpot(inputA, sourceAdditionMark);
 	}
 
 	function stripAllMarksFromClone(rootNode) {
@@ -655,32 +660,32 @@ console.log("running diff3");
 		}
 	}
 
-	function getResolveAdditionsPlainHtml() {
-		const diffRight = document.getElementById("diff-right-resolve");
-		if (!diffRight) return "";
+	function getInputDeletionsPlainHtml() {
+		const inputA = document.getElementById("inputA");
+		if (!inputA) return "";
 
-		const clone = diffRight.cloneNode(true);
+		const clone = inputA.cloneNode(true);
 		stripAllMarksFromClone(clone);
 		return clone.innerHTML;
 	}
 
-	function getResolveDeletionsPlainHtml() {
-		const diffLeft = document.getElementById("diff-left-resolve");
-		if (!diffLeft) return "";
+	function getInputAdditionsPlainHtml() {
+		const inputB = document.getElementById("inputB");
+		if (!inputB) return "";
 
-		const clone = diffLeft.cloneNode(true);
+		const clone = inputB.cloneNode(true);
 		stripAllMarksFromClone(clone);
 		return clone.innerHTML;
 	}
 
-	function rerenderResolveOutputsAgainstCurrentStates() {
-		const diffLeft = document.getElementById("diff-left-resolve");
-		const diffRight = document.getElementById("diff-right-resolve");
-		if (!diffLeft || !diffRight) return;
+	function rerenderInputsAgainstCurrentStates() {
+		const inputA = document.getElementById("inputA");
+		const inputB = document.getElementById("inputB");
+		if (!inputA || !inputB) return;
 
-		const currentDeletionsHtml = getResolveDeletionsPlainHtml();
-		const currentAdditionsHtml = getResolveAdditionsPlainHtml();
-		renderDiffBetweenHtml(currentDeletionsHtml, currentAdditionsHtml, diffLeft, diffRight);
+		const currentDeletionsHtml = getInputDeletionsPlainHtml();
+		const currentAdditionsHtml = getInputAdditionsPlainHtml();
+		renderDiffBetweenHtml(currentDeletionsHtml, currentAdditionsHtml, inputA, inputB);
 		removeActionsPanel();
 	}
 
@@ -709,23 +714,23 @@ console.log("running diff3");
 		if (hasCorrespondingChange) {
 			// Rejecting a paired replacement restores deleted content in additions.
 			replaceNodeWithHtml(additionMark, deletionMark.innerHTML);
-			unwrapMarkInContainer(deletionMark, document.getElementById("diff-left-resolve"));
-			rerenderResolveOutputsAgainstCurrentStates();
+			unwrapMarkInContainer(deletionMark, document.getElementById("inputA"));
+			rerenderInputsAgainstCurrentStates();
 			return;
 		}
 
 		if (deletionMark) {
 			// Rejecting standalone deletion re-inserts content into additions near matched unchanged anchors.
-			insertHtmlAtMatchingSpotInRightOutput(deletionMark);
-			unwrapMarkInContainer(deletionMark, document.getElementById("diff-left-resolve"));
-			rerenderResolveOutputsAgainstCurrentStates();
+			insertHtmlAtMatchingSpotInRightInput(deletionMark);
+			unwrapMarkInContainer(deletionMark, document.getElementById("inputA"));
+			rerenderInputsAgainstCurrentStates();
 			return;
 		}
 
 		if (additionMark) {
-			// Rejecting standalone addition drops that addition from output additions.
+			// Rejecting standalone addition drops that addition from input additions.
 			additionMark.remove();
-			rerenderResolveOutputsAgainstCurrentStates();
+			rerenderInputsAgainstCurrentStates();
 		}
 	}
 
@@ -737,23 +742,23 @@ console.log("running diff3");
 		if (hasCorrespondingChange) {
 			// Accepting a paired change applies new text to both sides so it disappears from remaining work.
 			replaceNodeWithHtml(deletionMark, additionMark.innerHTML);
-			unwrapMarkInContainer(additionMark, document.getElementById("diff-right-resolve"));
-			rerenderResolveOutputsAgainstCurrentStates();
+			unwrapMarkInContainer(additionMark, document.getElementById("inputB"));
+			rerenderInputsAgainstCurrentStates();
 			return;
 		}
 
 		if (deletionMark) {
 			// Accepting deletion removes old text from the unresolved-left side.
 			deletionMark.remove();
-			rerenderResolveOutputsAgainstCurrentStates();
+			rerenderInputsAgainstCurrentStates();
 			return;
 		}
 
 		if (additionMark) {
 			// Accepting standalone addition mirrors added content into unresolved-left side.
-			insertHtmlAtMatchingSpotInLeftOutput(additionMark);
-			unwrapMarkInContainer(additionMark, document.getElementById("diff-right-resolve"));
-			rerenderResolveOutputsAgainstCurrentStates();
+			insertHtmlAtMatchingSpotInLeftInput(additionMark);
+			unwrapMarkInContainer(additionMark, document.getElementById("inputB"));
+			rerenderInputsAgainstCurrentStates();
 		}
 	}
 
@@ -808,14 +813,14 @@ console.log("running diff3");
 		activeActionsPanel = panel;
 	}
 
-	function isMarkInResolveOutputs(mark) {
+	function isMarkInInputs(mark) {
 		if (!mark) return false;
 
-		const leftResolve = document.getElementById("diff-left-resolve");
-		const rightResolve = document.getElementById("diff-right-resolve");
+		const inputA = document.getElementById("inputA");
+		const inputB = document.getElementById("inputB");
 
 		return Boolean(
-			(leftResolve && leftResolve.contains(mark)) || (rightResolve && rightResolve.contains(mark)),
+			(inputA && inputA.contains(mark)) || (inputB && inputB.contains(mark)),
 		);
 	}
 
@@ -826,7 +831,7 @@ console.log("running diff3");
 		document.addEventListener("click", (event) => {
 			const clickedMark = getChangedMarkFromEventTarget(event.target);
 
-			if (clickedMark && isMarkInResolveOutputs(clickedMark)) {
+			if (clickedMark && isMarkInInputs(clickedMark)) {
 				event.preventDefault();
 				event.stopPropagation();
 				showActionButtonsForMark(clickedMark);
@@ -854,6 +859,24 @@ console.log("running diff3");
 				removeActionsPanel();
 			}
 		});
+	}
+
+	function restoreInputsForEditing() {
+		const inputA = document.getElementById("inputA");
+		const inputB = document.getElementById("inputB");
+		if (!inputA || !inputB) return;
+
+		if (cachedInputBeforeHtml !== null) {
+			inputA.innerHTML = cachedInputBeforeHtml;
+			inputB.innerHTML = cachedInputAfterHtml;
+		}
+
+		inputA.contentEditable = "true";
+		inputB.contentEditable = "true";
+		inputsAreInDiffMode = false;
+
+		const editBtn = document.getElementById("edit-inputs-btn");
+		if (editBtn) editBtn.style.display = "none";
 	}
 
 	function renderDiffBetweenHtml(beforeHtml, afterHtml, diffLeft, diffRight) {
@@ -893,26 +916,43 @@ console.log("running diff3");
 	function showDiff() {
 		const inputA = document.getElementById("inputA");
 		const inputB = document.getElementById("inputB");
-		const diffLeft = document.getElementById("diff-left");
-		const diffRight = document.getElementById("diff-right");
-		const diffLeftResolve = document.getElementById("diff-left-resolve");
-		const diffRightResolve = document.getElementById("diff-right-resolve");
+		const refLeft = document.getElementById("ref-left");
+		const refRight = document.getElementById("ref-right");
 
-		if (
-			!inputA ||
-			!inputB ||
-			!diffLeft ||
-			!diffRight ||
-			!diffLeftResolve ||
-			!diffRightResolve
-		)
-			return;
+		if (!inputA || !inputB || !refLeft || !refRight) return;
+
+		// Restore clean content from cache if inputs currently show diff markup
+		if (inputsAreInDiffMode && cachedInputBeforeHtml !== null) {
+			inputA.innerHTML = cachedInputBeforeHtml;
+			inputB.innerHTML = cachedInputAfterHtml;
+		}
 
 		const beforeHtml = inputA.innerHTML;
 		const afterHtml = inputB.innerHTML;
 
-		renderDiffBetweenHtml(beforeHtml, afterHtml, diffLeft, diffRight);
-		renderDiffBetweenHtml(beforeHtml, afterHtml, diffLeftResolve, diffRightResolve);
+		// Cache originals so restoreInputsForEditing can recover them
+		cachedInputBeforeHtml = beforeHtml;
+		cachedInputAfterHtml = afterHtml;
+
+		renderDiffBetweenHtml(beforeHtml, afterHtml, inputA, inputB);
+		inputA.contentEditable = "false";
+		inputB.contentEditable = "false";
+		inputsAreInDiffMode = true;
+
+		// Store reference versions for the sidebar
+		referenceLeftHtml = inputA.innerHTML;
+		referenceRightHtml = inputB.innerHTML;
+
+		// Populate reference sidebar with marked diff
+		refLeft.innerHTML = referenceLeftHtml;
+		refRight.innerHTML = referenceRightHtml;
+
+		const editBtn = document.getElementById("edit-inputs-btn");
+		if (editBtn) editBtn.style.display = "inline-flex";
+
+		const refBtn = document.getElementById("ref-toggle-btn");
+		if (refBtn) refBtn.style.display = "inline-flex";
+
 		removeActionsPanel();
 		bindOutputInteractionsOnce();
 	}
@@ -920,6 +960,7 @@ console.log("running diff3");
 	exports.applyStyle = applyStyle;
 	exports.applyBgColor = applyBgColor;
 	exports.showDiff = showDiff;
+	exports.restoreInputsForEditing = restoreInputsForEditing;
 	exports.escapeHtml = escapeHtml;
 	exports.flattenHtmlToTokens = flattenHtmlToTokens;
 	exports.concatenateTokensToText = concatenateTokensToText;

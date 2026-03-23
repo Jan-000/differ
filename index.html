@@ -167,29 +167,24 @@
 
       <div class="diff-controls">
         <button class="primary" onclick="showDiff()">Show Diff</button>
+        <button class="secondary" id="edit-inputs-btn" onclick="restoreInputsForEditing()" style="display:none">Edit inputs</button>
+        <button class="secondary" id="ref-toggle-btn" onclick="toggleReferenceSidebar()" style="display:none">Reference</button>
       </div>
 
-      <div id="diff-output" class="output-section">
-        <h2 class="section-heading">Diff Preview (No Resolving)</h2>
-        <div class="diff-column">
-          <h2 class="diff-heading">Deletions</h2>
-          <div class="diff-box" id="diff-left"></div>
+      <div id="reference-sidebar" class="reference-sidebar" style="display:none">
+        <div class="reference-header">
+          <h3>Original Diff</h3>
+          <button class="close-ref-btn" onclick="toggleReferenceSidebar()">×</button>
         </div>
-        <div class="diff-column">
-          <h2 class="diff-heading">Additions</h2>
-          <div class="diff-box" id="diff-right"></div>
-        </div>
-      </div>
-
-      <div id="diff-output-resolve" class="output-section">
-        <h2 class="section-heading">Resolve Changes</h2>
-        <div class="diff-column">
-          <h2 class="diff-heading">Deletions</h2>
-          <div class="diff-box" id="diff-left-resolve"></div>
-        </div>
-        <div class="diff-column">
-          <h2 class="diff-heading">Additions</h2>
-          <div class="diff-box" id="diff-right-resolve"></div>
+        <div class="reference-content">
+          <div class="diff-column">
+            <h4>Deletions</h4>
+            <div class="diff-box" id="ref-left"></div>
+          </div>
+          <div class="diff-column">
+            <h4>Additions</h4>
+            <div class="diff-box" id="ref-right"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -300,11 +295,19 @@
         } catch (e) {}
       }
 
+      function toggleReferenceSidebar() {
+        const sidebar = document.getElementById("reference-sidebar");
+        if (sidebar) {
+          sidebar.style.display = sidebar.style.display === "none" ? "block" : "none";
+        }
+      }
+
       function applyEngineApi(api) {
         if (!api) return;
         if (typeof api.applyStyle === "function") window.applyStyle = api.applyStyle;
         if (typeof api.applyBgColor === "function") window.applyBgColor = api.applyBgColor;
         if (typeof api.showDiff === "function") window.showDiff = api.showDiff;
+        if (typeof api.restoreInputsForEditing === "function") window.restoreInputsForEditing = api.restoreInputsForEditing;
         if (typeof api.escapeHtml === "function") window.escapeHtml = api.escapeHtml;
       }
 

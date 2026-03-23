@@ -161,30 +161,51 @@ button.primary:hover {
 .added {
   background: #7affa2;
   color: #065f46;
-  padding: 4px 6px;
+  padding: 4px 1px;
   border-radius: 6px;
+  cursor: pointer;
 }
 
 .removed {
   background: #ff818a;
   color: #9f1239;
-  padding: 4px 6px;
+  padding: 4px 1px;
   border-radius: 6px;
 }
 
 .deleted {
   background: #ff818a;
   color: #9f1239;
-  padding: 4px 6px;
+  padding: 4px 1px;
   border-radius: 6px;
+  cursor: pointer;
+}
+
+.change-selected {
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.2);
+}
+
+.change-actions {
+  position: absolute;
+  z-index: 999;
+  display: inline-flex;
+  gap: 6px;
 }
 
 .revert-button {
   padding: 6px 10px;
   font-size: 12px;
   border-radius: 8px;
-  position: absolute;
-  z-index: 999;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.accept-button {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
 }
 
 .revert-button-left {
@@ -196,6 +217,18 @@ button.primary:hover {
 .revert-button-right {
   background: #fff;
   border: 1px solid rgba(6, 95, 70, 0.08);
+  color: #065f46;
+}
+
+.accept-button-left {
+  background: #fff;
+  border: 1px solid rgba(159, 18, 57, 0.14);
+  color: #9f1239;
+}
+
+.accept-button-right {
+  background: #fff;
+  border: 1px solid rgba(6, 95, 70, 0.14);
   color: #065f46;
 }
 

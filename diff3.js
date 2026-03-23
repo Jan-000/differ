@@ -455,6 +455,368 @@ console.log("running diff3");
 		};
 	}
 
+	let activeActionsPanel = null;
+	let selectedChangedMark = null;
+	let hasBoundDiffInteractions = false;
+
+	function getChangedMarkFromEventTarget(target) {
+		if (!target || !(target instanceof Element)) return null;
+		const changedMark = target.closest("mark.deleted, mark.added");
+		return changedMark instanceof HTMLElement ? changedMark : null;
+	}
+
+	function getChangeAttrName(mark) {
+		if (!mark || !mark.attributes) return "";
+
+		for (let index = 0; index < mark.attributes.length; index += 1) {
+			const attribute = mark.attributes[index];
+			if (attribute && attribute.name && attribute.name.startsWith("corresponding-change-")) {
+				return attribute.name;
+			}
+		}
+
+		return "";
+	}
+
+	function getUnchangedIndexFromMark(mark) {
+		if (!mark || !mark.attributes) return 0;
+
+		for (let index = 0; index < mark.attributes.length; index += 1) {
+			const attribute = mark.attributes[index];
+			if (!attribute || !attribute.name) continue;
+
+			if (attribute.name.startsWith("diffing-unchanged-")) {
+				const rawIndex = attribute.name.replace("diffing-unchanged-", "");
+				const numericIndex = Number(rawIndex);
+				if (Number.isFinite(numericIndex)) return numericIndex;
+			}
+		}
+
+		return 0;
+	}
+
+	function isInsideLeftOutput(mark) {
+		const diffLeft = document.getElementById("diff-left");
+		return Boolean(diffLeft && mark && diffLeft.contains(mark));
+	}
+
+	function findCorrespondingMark(mark) {
+		const attrName = getChangeAttrName(mark);
+		if (!attrName) return null;
+
+		const sourceIsLeft = isInsideLeftOutput(mark);
+		const oppositeContainer = document.getElementById(sourceIsLeft ? "diff-right" : "diff-left");
+		if (!oppositeContainer) return null;
+
+		const selector = `mark[${attrName}]`;
+		const matched = oppositeContainer.querySelector(selector);
+		return matched instanceof HTMLElement ? matched : null;
+	}
+
+	function removeActionsPanel() {
+		if (activeActionsPanel && activeActionsPanel.parentNode) {
+			activeActionsPanel.parentNode.removeChild(activeActionsPanel);
+		}
+
+		activeActionsPanel = null;
+
+		if (selectedChangedMark) {
+			selectedChangedMark.classList.remove("change-selected");
+		}
+
+		selectedChangedMark = null;
+	}
+
+	function getChangedBlock(mark) {
+		if (!mark) {
+			return {
+				deletionMark: null,
+				additionMark: null,
+				hasCorrespondingChange: false,
+			};
+		}
+
+		let deletionMark = mark.classList.contains("deleted") ? mark : null;
+		let additionMark = mark.classList.contains("added") ? mark : null;
+
+		const correspondingMark = findCorrespondingMark(mark);
+		if (correspondingMark) {
+			if (correspondingMark.classList.contains("deleted")) {
+				deletionMark = correspondingMark;
+			}
+
+			if (correspondingMark.classList.contains("added")) {
+				additionMark = correspondingMark;
+			}
+		}
+
+		return {
+			deletionMark,
+			additionMark,
+			hasCorrespondingChange: Boolean(deletionMark && additionMark),
+		};
+	}
+
+	function createFragmentFromHtml(html) {
+		const template = document.createElement("template");
+		template.innerHTML = String(html || "");
+		return template.content;
+	}
+
+	function unwrapMarkInContainer(mark, container) {
+		if (!mark || !container || !container.contains(mark)) return;
+		unwrapMark(mark);
+	}
+
+	function findNeighborUnchangedIndex(mark, direction) {
+		if (!mark) return 0;
+
+		let current = mark;
+		while (current) {
+			current = direction === "next" ? current.nextElementSibling : current.previousElementSibling;
+			if (!current) return 0;
+
+			if (current.tagName && current.tagName.toLowerCase() === "mark") {
+				const unchangedIndex = getUnchangedIndexFromMark(current);
+				if (unchangedIndex) return unchangedIndex;
+			}
+		}
+
+		return 0;
+	}
+
+	function findUnchangedMarkByIndex(container, unchangedIndex) {
+		if (!container || !unchangedIndex) return null;
+		const selector = `mark[diffing-unchanged-${unchangedIndex}]`;
+		const found = container.querySelector(selector);
+		return found instanceof HTMLElement ? found : null;
+	}
+
+	function insertHtmlAtMatchingSpotInRightOutput(sourceDeletionMark) {
+		if (!sourceDeletionMark) return;
+
+		const diffRight = document.getElementById("diff-right");
+		if (!diffRight) return;
+
+		const htmlToInsert = sourceDeletionMark.innerHTML;
+		if (!htmlToInsert) return;
+
+		const nextUnchangedIndex = findNeighborUnchangedIndex(sourceDeletionMark, "next");
+		const previousUnchangedIndex = findNeighborUnchangedIndex(sourceDeletionMark, "previous");
+
+		if (nextUnchangedIndex) {
+			const nextAnchor = findUnchangedMarkByIndex(diffRight, nextUnchangedIndex);
+			if (nextAnchor && nextAnchor.parentNode) {
+				nextAnchor.parentNode.insertBefore(createFragmentFromHtml(htmlToInsert), nextAnchor);
+				return;
+			}
+		}
+
+		if (previousUnchangedIndex) {
+			const previousAnchor = findUnchangedMarkByIndex(diffRight, previousUnchangedIndex);
+			if (previousAnchor && previousAnchor.parentNode) {
+				previousAnchor.parentNode.insertBefore(
+					createFragmentFromHtml(htmlToInsert),
+					previousAnchor.nextSibling,
+				);
+				return;
+			}
+		}
+
+		diffRight.appendChild(createFragmentFromHtml(htmlToInsert));
+	}
+
+	function stripAllMarksFromClone(rootNode) {
+		if (!rootNode) return;
+
+		let marks = rootNode.querySelectorAll("mark");
+		while (marks.length > 0) {
+			marks.forEach((mark) => {
+				if (!mark.parentNode) return;
+				while (mark.firstChild) {
+					mark.parentNode.insertBefore(mark.firstChild, mark);
+				}
+				mark.parentNode.removeChild(mark);
+			});
+			marks = rootNode.querySelectorAll("mark");
+		}
+	}
+
+	function syncInputAfterAndRerun() {
+		const diffRight = document.getElementById("diff-right");
+		const inputB = document.getElementById("inputB");
+		if (!diffRight || !inputB) return;
+
+		const clone = diffRight.cloneNode(true);
+		stripAllMarksFromClone(clone);
+		inputB.innerHTML = clone.innerHTML;
+		showDiff();
+	}
+
+	function replaceNodeWithHtml(node, html) {
+		if (!node || !node.parentNode) return;
+
+		const template = document.createElement("template");
+		template.innerHTML = html;
+		node.replaceWith(template.content);
+	}
+
+	function unwrapMark(mark) {
+		if (!mark || !mark.parentNode) return;
+		const parent = mark.parentNode;
+		while (mark.firstChild) {
+			parent.insertBefore(mark.firstChild, mark);
+		}
+		parent.removeChild(mark);
+	}
+
+	function rejectMark(mark) {
+		if (!mark) return;
+
+		const { deletionMark, additionMark, hasCorrespondingChange } = getChangedBlock(mark);
+
+		if (hasCorrespondingChange) {
+			// Rejecting a paired replacement restores deleted content in additions.
+			replaceNodeWithHtml(additionMark, deletionMark.innerHTML);
+			unwrapMarkInContainer(deletionMark, document.getElementById("diff-left"));
+			removeActionsPanel();
+			syncInputAfterAndRerun();
+			return;
+		}
+
+		if (deletionMark) {
+			// Rejecting standalone deletion re-inserts content into additions near matched unchanged anchors.
+			insertHtmlAtMatchingSpotInRightOutput(deletionMark);
+			unwrapMarkInContainer(deletionMark, document.getElementById("diff-left"));
+			removeActionsPanel();
+			syncInputAfterAndRerun();
+			return;
+		}
+
+		if (additionMark) {
+			// Rejecting standalone addition drops that addition from output additions.
+			additionMark.remove();
+			removeActionsPanel();
+			syncInputAfterAndRerun();
+		}
+	}
+
+	function acceptMark(mark) {
+		if (!mark) return;
+
+		const { deletionMark, additionMark, hasCorrespondingChange } = getChangedBlock(mark);
+
+		if (hasCorrespondingChange) {
+			// Accepting paired replacement keeps additions and removes change wrappers on both sides.
+			unwrapMarkInContainer(deletionMark, document.getElementById("diff-left"));
+			unwrapMarkInContainer(additionMark, document.getElementById("diff-right"));
+			removeActionsPanel();
+			syncInputAfterAndRerun();
+			return;
+		}
+
+		if (deletionMark) {
+			unwrapMarkInContainer(deletionMark, document.getElementById("diff-left"));
+			removeActionsPanel();
+			syncInputAfterAndRerun();
+			return;
+		}
+
+		if (additionMark) {
+			unwrapMarkInContainer(additionMark, document.getElementById("diff-right"));
+			removeActionsPanel();
+			syncInputAfterAndRerun();
+		}
+	}
+
+	function showActionButtonsForMark(mark) {
+		if (!mark) return;
+
+		removeActionsPanel();
+
+		selectedChangedMark = mark;
+		selectedChangedMark.classList.add("change-selected");
+
+		const panel = document.createElement("div");
+		panel.className = "change-actions";
+
+		const rejectButton = document.createElement("button");
+		rejectButton.type = "button";
+		rejectButton.className = "revert-button";
+		rejectButton.textContent = "Reject";
+		rejectButton.addEventListener("click", (event) => {
+			event.preventDefault();
+			event.stopPropagation();
+			rejectMark(mark);
+		});
+
+		const acceptButton = document.createElement("button");
+		acceptButton.type = "button";
+		acceptButton.className = "accept-button";
+		acceptButton.textContent = "Accept";
+		acceptButton.addEventListener("click", (event) => {
+			event.preventDefault();
+			event.stopPropagation();
+			acceptMark(mark);
+		});
+
+		panel.appendChild(rejectButton);
+		panel.appendChild(acceptButton);
+
+		document.body.appendChild(panel);
+
+		const rect = mark.getBoundingClientRect();
+		panel.style.top = `${window.scrollY + rect.bottom + 6}px`;
+		panel.style.left = `${window.scrollX + rect.left}px`;
+
+		if (mark.classList.contains("deleted")) {
+			rejectButton.classList.add("revert-button-left");
+			acceptButton.classList.add("accept-button-left");
+		} else {
+			rejectButton.classList.add("revert-button-right");
+			acceptButton.classList.add("accept-button-right");
+		}
+
+		activeActionsPanel = panel;
+	}
+
+	function bindOutputInteractionsOnce() {
+		if (hasBoundDiffInteractions) return;
+		hasBoundDiffInteractions = true;
+
+		document.addEventListener("click", (event) => {
+			const clickedMark = getChangedMarkFromEventTarget(event.target);
+
+			if (clickedMark) {
+				event.preventDefault();
+				event.stopPropagation();
+				showActionButtonsForMark(clickedMark);
+				return;
+			}
+
+			const clickedActionButton =
+				activeActionsPanel && event.target instanceof Element
+					? event.target.closest(".revert-button, .accept-button")
+					: null;
+
+			if (!clickedActionButton) {
+				removeActionsPanel();
+			}
+		});
+
+		window.addEventListener("scroll", () => {
+			if (activeActionsPanel) {
+				removeActionsPanel();
+			}
+		});
+
+		window.addEventListener("resize", () => {
+			if (activeActionsPanel) {
+				removeActionsPanel();
+			}
+		});
+	}
+
 	function showDiff() {
 		const inputA = document.getElementById("inputA");
 		const inputB = document.getElementById("inputB");
@@ -495,6 +857,8 @@ console.log("running diff3");
 		// — Stage 7: Final Output Generation (Before / After Views) —
 		diffLeft.innerHTML = sideHtml.left;
 		diffRight.innerHTML = sideHtml.right;
+		removeActionsPanel();
+		bindOutputInteractionsOnce();
 	}
 
 	exports.applyStyle = applyStyle;

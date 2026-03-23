@@ -157,49 +157,63 @@ button.secondary:hover {
   border-radius: 8px;
   margin-bottom: 1.25rem;
   overflow: hidden;
-  transition: all 0.2s ease;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.35s ease;
+  max-height: 500px;
+}
+
+.reference-pane.reference-pane-collapsed {
+  max-height: 40px;
+  margin-bottom: 0.75rem;
 }
 
 .reference-pane-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
   background: rgba(2, 6, 23, 0.01);
   border-bottom: 1px solid rgba(15, 23, 42, 0.04);
   cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.reference-pane.reference-pane-collapsed .reference-pane-header {
+  border-bottom: none;
 }
 
 .reference-pane-header:hover {
-  background: rgba(2, 6, 23, 0.02);
+  background: rgba(2, 6, 23, 0.03);
+}
+
+.reference-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.reference-pane.reference-pane-collapsed .reference-arrow {
+  transform: rotate(0deg);
+}
+
+.reference-pane:not(.reference-pane-collapsed) .reference-arrow {
+  transform: rotate(90deg);
 }
 
 .reference-pane-header h3 {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.02em;
-}
-
-.close-ref-btn {
-  background: transparent;
-  border: none;
-  color: var(--muted);
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0 0.25rem;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.15s ease;
-}
-
-.close-ref-btn:hover {
-  color: var(--text);
+  white-space: nowrap;
 }
 
 .reference-pane-content {
@@ -207,6 +221,14 @@ button.secondary:hover {
   gap: 1.25rem;
   padding: 1rem;
   flex-wrap: wrap;
+  transition: opacity 0.35s ease;
+}
+
+.reference-pane.reference-pane-collapsed .reference-pane-content {
+  opacity: 0;
+  pointer-events: none;
+  padding: 0;
+  display: none;
 }
 
 .reference-column {

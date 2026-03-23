@@ -83,10 +83,10 @@
           <div class="alt-space" aria-hidden="true"></div>
         </div>
       </div>
-      <div id="reference-pane" class="reference-pane" style="display:none">
-        <div class="reference-pane-header">
+      <div id="reference-pane" class="reference-pane reference-pane-collapsed">
+        <div class="reference-pane-header" onclick="toggleReferenceSidebar()">
+          <span class="reference-arrow">▸</span>
           <h3>Original Diff Reference</h3>
-          <button class="close-ref-btn" onclick="toggleReferenceSidebar()">−</button>
         </div>
         <div class="reference-pane-content">
           <div class="reference-column">
@@ -184,8 +184,6 @@
 
       <div class="diff-controls">
         <button class="primary" onclick="showDiff()">Show Diff</button>
-        <button class="secondary" id="edit-inputs-btn" onclick="restoreInputsForEditing()" style="display:none">Edit inputs</button>
-        <button class="secondary" id="ref-toggle-btn" onclick="toggleReferenceSidebar()" style="display:none">Reference</button>
       </div>
     </div>
     <details id="about" class="about">
@@ -298,7 +296,7 @@
       function toggleReferenceSidebar() {
         const pane = document.getElementById("reference-pane");
         if (pane) {
-          pane.style.display = pane.style.display === "none" ? "block" : "none";
+          pane.classList.toggle("reference-pane-collapsed");
         }
       }
 

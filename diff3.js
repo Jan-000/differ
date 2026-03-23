@@ -874,9 +874,6 @@ console.log("running diff3");
 		inputA.contentEditable = "true";
 		inputB.contentEditable = "true";
 		inputsAreInDiffMode = false;
-
-		const editBtn = document.getElementById("edit-inputs-btn");
-		if (editBtn) editBtn.style.display = "none";
 	}
 
 	function renderDiffBetweenHtml(beforeHtml, afterHtml, diffLeft, diffRight) {
@@ -947,14 +944,25 @@ console.log("running diff3");
 		refLeft.innerHTML = referenceLeftHtml;
 		refRight.innerHTML = referenceRightHtml;
 
-		const editBtn = document.getElementById("edit-inputs-btn");
-		if (editBtn) editBtn.style.display = "inline-flex";
-
-		const refBtn = document.getElementById("ref-toggle-btn");
-		if (refBtn) refBtn.style.display = "inline-flex";
+		// Ensure reference pane is visible and collapsed
+		const refPane = document.getElementById("reference-pane");
+		if (refPane) {
+			refPane.classList.add("reference-pane-collapsed");
+		}
 
 		removeActionsPanel();
 		bindOutputInteractionsOnce();
+	}
+
+	function initializeInputsForEditing() {
+		const inputA = document.getElementById("inputA");
+		const inputB = document.getElementById("inputB");
+
+		if (!inputA || !inputB) return;
+
+		inputA.contentEditable = "true";
+		inputB.contentEditable = "true";
+		inputsAreInDiffMode = false;
 	}
 
 	exports.applyStyle = applyStyle;
@@ -969,5 +977,11 @@ console.log("running diff3");
 
 	try {
 		window.DiffNewest = exports;
+
+		if (document.readyState === "loading") {
+			document.addEventListener("DOMContentLoaded", initializeInputsForEditing, { once: true });
+		} else {
+			initializeInputsForEditing();
+		}
 	} catch (error) { }
 })(typeof window !== "undefined" ? {} : {});

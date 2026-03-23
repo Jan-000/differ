@@ -496,7 +496,7 @@ console.log("running diff3");
 	}
 
 	function isInsideLeftOutput(mark) {
-		const diffLeft = document.getElementById("diff-left");
+		const diffLeft = document.getElementById("diff-left-resolve");
 		return Boolean(diffLeft && mark && diffLeft.contains(mark));
 	}
 
@@ -505,7 +505,9 @@ console.log("running diff3");
 		if (!attrName) return null;
 
 		const sourceIsLeft = isInsideLeftOutput(mark);
-		const oppositeContainer = document.getElementById(sourceIsLeft ? "diff-right" : "diff-left");
+		const oppositeContainer = document.getElementById(
+			sourceIsLeft ? "diff-right-resolve" : "diff-left-resolve",
+		);
 		if (!oppositeContainer) return null;
 
 		const selector = `mark[${attrName}]`;
@@ -592,20 +594,17 @@ console.log("running diff3");
 		return found instanceof HTMLElement ? found : null;
 	}
 
-	function insertHtmlAtMatchingSpotInRightOutput(sourceDeletionMark) {
-		if (!sourceDeletionMark) return;
+	function insertHtmlAtMatchingSpot(targetContainer, sourceMark) {
+		if (!sourceMark || !targetContainer) return;
 
-		const diffRight = document.getElementById("diff-right");
-		if (!diffRight) return;
-
-		const htmlToInsert = sourceDeletionMark.innerHTML;
+		const htmlToInsert = sourceMark.innerHTML;
 		if (!htmlToInsert) return;
 
-		const nextUnchangedIndex = findNeighborUnchangedIndex(sourceDeletionMark, "next");
-		const previousUnchangedIndex = findNeighborUnchangedIndex(sourceDeletionMark, "previous");
+		const nextUnchangedIndex = findNeighborUnchangedIndex(sourceMark, "next");
+		const previousUnchangedIndex = findNeighborUnchangedIndex(sourceMark, "previous");
 
 		if (nextUnchangedIndex) {
-			const nextAnchor = findUnchangedMarkByIndex(diffRight, nextUnchangedIndex);
+			const nextAnchor = findUnchangedMarkByIndex(targetContainer, nextUnchangedIndex);
 			if (nextAnchor && nextAnchor.parentNode) {
 				nextAnchor.parentNode.insertBefore(createFragmentFromHtml(htmlToInsert), nextAnchor);
 				return;
@@ -613,7 +612,7 @@ console.log("running diff3");
 		}
 
 		if (previousUnchangedIndex) {
-			const previousAnchor = findUnchangedMarkByIndex(diffRight, previousUnchangedIndex);
+			const previousAnchor = findUnchangedMarkByIndex(targetContainer, previousUnchangedIndex);
 			if (previousAnchor && previousAnchor.parentNode) {
 				previousAnchor.parentNode.insertBefore(
 					createFragmentFromHtml(htmlToInsert),
@@ -623,7 +622,21 @@ console.log("running diff3");
 			}
 		}
 
-		diffRight.appendChild(createFragmentFromHtml(htmlToInsert));
+		targetContainer.appendChild(createFragmentFromHtml(htmlToInsert));
+	}
+
+	function insertHtmlAtMatchingSpotInRightOutput(sourceDeletionMark) {
+		if (!sourceDeletionMark) return;
+		const diffRight = document.getElementById("diff-right-resolve");
+		if (!diffRight) return;
+		insertHtmlAtMatchingSpot(diffRight, sourceDeletionMark);
+	}
+
+	function insertHtmlAtMatchingSpotInLeftOutput(sourceAdditionMark) {
+		if (!sourceAdditionMark) return;
+		const diffLeft = document.getElementById("diff-left-resolve");
+		if (!diffLeft) return;
+		insertHtmlAtMatchingSpot(diffLeft, sourceAdditionMark);
 	}
 
 	function stripAllMarksFromClone(rootNode) {
@@ -642,15 +655,33 @@ console.log("running diff3");
 		}
 	}
 
-	function syncInputAfterAndRerun() {
-		const diffRight = document.getElementById("diff-right");
-		const inputB = document.getElementById("inputB");
-		if (!diffRight || !inputB) return;
+	function getResolveAdditionsPlainHtml() {
+		const diffRight = document.getElementById("diff-right-resolve");
+		if (!diffRight) return "";
 
 		const clone = diffRight.cloneNode(true);
 		stripAllMarksFromClone(clone);
-		inputB.innerHTML = clone.innerHTML;
-		showDiff();
+		return clone.innerHTML;
+	}
+
+	function getResolveDeletionsPlainHtml() {
+		const diffLeft = document.getElementById("diff-left-resolve");
+		if (!diffLeft) return "";
+
+		const clone = diffLeft.cloneNode(true);
+		stripAllMarksFromClone(clone);
+		return clone.innerHTML;
+	}
+
+	function rerenderResolveOutputsAgainstCurrentStates() {
+		const diffLeft = document.getElementById("diff-left-resolve");
+		const diffRight = document.getElementById("diff-right-resolve");
+		if (!diffLeft || !diffRight) return;
+
+		const currentDeletionsHtml = getResolveDeletionsPlainHtml();
+		const currentAdditionsHtml = getResolveAdditionsPlainHtml();
+		renderDiffBetweenHtml(currentDeletionsHtml, currentAdditionsHtml, diffLeft, diffRight);
+		removeActionsPanel();
 	}
 
 	function replaceNodeWithHtml(node, html) {
@@ -678,26 +709,23 @@ console.log("running diff3");
 		if (hasCorrespondingChange) {
 			// Rejecting a paired replacement restores deleted content in additions.
 			replaceNodeWithHtml(additionMark, deletionMark.innerHTML);
-			unwrapMarkInContainer(deletionMark, document.getElementById("diff-left"));
-			removeActionsPanel();
-			syncInputAfterAndRerun();
+			unwrapMarkInContainer(deletionMark, document.getElementById("diff-left-resolve"));
+			rerenderResolveOutputsAgainstCurrentStates();
 			return;
 		}
 
 		if (deletionMark) {
 			// Rejecting standalone deletion re-inserts content into additions near matched unchanged anchors.
 			insertHtmlAtMatchingSpotInRightOutput(deletionMark);
-			unwrapMarkInContainer(deletionMark, document.getElementById("diff-left"));
-			removeActionsPanel();
-			syncInputAfterAndRerun();
+			unwrapMarkInContainer(deletionMark, document.getElementById("diff-left-resolve"));
+			rerenderResolveOutputsAgainstCurrentStates();
 			return;
 		}
 
 		if (additionMark) {
 			// Rejecting standalone addition drops that addition from output additions.
 			additionMark.remove();
-			removeActionsPanel();
-			syncInputAfterAndRerun();
+			rerenderResolveOutputsAgainstCurrentStates();
 		}
 	}
 
@@ -707,25 +735,25 @@ console.log("running diff3");
 		const { deletionMark, additionMark, hasCorrespondingChange } = getChangedBlock(mark);
 
 		if (hasCorrespondingChange) {
-			// Accepting paired replacement keeps additions and removes change wrappers on both sides.
-			unwrapMarkInContainer(deletionMark, document.getElementById("diff-left"));
-			unwrapMarkInContainer(additionMark, document.getElementById("diff-right"));
-			removeActionsPanel();
-			syncInputAfterAndRerun();
+			// Accepting a paired change applies new text to both sides so it disappears from remaining work.
+			replaceNodeWithHtml(deletionMark, additionMark.innerHTML);
+			unwrapMarkInContainer(additionMark, document.getElementById("diff-right-resolve"));
+			rerenderResolveOutputsAgainstCurrentStates();
 			return;
 		}
 
 		if (deletionMark) {
-			unwrapMarkInContainer(deletionMark, document.getElementById("diff-left"));
-			removeActionsPanel();
-			syncInputAfterAndRerun();
+			// Accepting deletion removes old text from the unresolved-left side.
+			deletionMark.remove();
+			rerenderResolveOutputsAgainstCurrentStates();
 			return;
 		}
 
 		if (additionMark) {
-			unwrapMarkInContainer(additionMark, document.getElementById("diff-right"));
-			removeActionsPanel();
-			syncInputAfterAndRerun();
+			// Accepting standalone addition mirrors added content into unresolved-left side.
+			insertHtmlAtMatchingSpotInLeftOutput(additionMark);
+			unwrapMarkInContainer(additionMark, document.getElementById("diff-right-resolve"));
+			rerenderResolveOutputsAgainstCurrentStates();
 		}
 	}
 
@@ -780,6 +808,17 @@ console.log("running diff3");
 		activeActionsPanel = panel;
 	}
 
+	function isMarkInResolveOutputs(mark) {
+		if (!mark) return false;
+
+		const leftResolve = document.getElementById("diff-left-resolve");
+		const rightResolve = document.getElementById("diff-right-resolve");
+
+		return Boolean(
+			(leftResolve && leftResolve.contains(mark)) || (rightResolve && rightResolve.contains(mark)),
+		);
+	}
+
 	function bindOutputInteractionsOnce() {
 		if (hasBoundDiffInteractions) return;
 		hasBoundDiffInteractions = true;
@@ -787,7 +826,7 @@ console.log("running diff3");
 		document.addEventListener("click", (event) => {
 			const clickedMark = getChangedMarkFromEventTarget(event.target);
 
-			if (clickedMark) {
+			if (clickedMark && isMarkInResolveOutputs(clickedMark)) {
 				event.preventDefault();
 				event.stopPropagation();
 				showActionButtonsForMark(clickedMark);
@@ -817,16 +856,8 @@ console.log("running diff3");
 		});
 	}
 
-	function showDiff() {
-		const inputA = document.getElementById("inputA");
-		const inputB = document.getElementById("inputB");
-		const diffLeft = document.getElementById("diff-left");
-		const diffRight = document.getElementById("diff-right");
-
-		if (!inputA || !inputB || !diffLeft || !diffRight) return;
-
-		const beforeHtml = inputA.innerHTML;
-		const afterHtml = inputB.innerHTML;
+	function renderDiffBetweenHtml(beforeHtml, afterHtml, diffLeft, diffRight) {
+		if (!diffLeft || !diffRight) return;
 
 		// — Stage 1: HTML Parsing → Tokenization —
 		const beforeTokens = flattenHtmlToTokens(beforeHtml);
@@ -857,6 +888,31 @@ console.log("running diff3");
 		// — Stage 7: Final Output Generation (Before / After Views) —
 		diffLeft.innerHTML = sideHtml.left;
 		diffRight.innerHTML = sideHtml.right;
+	}
+
+	function showDiff() {
+		const inputA = document.getElementById("inputA");
+		const inputB = document.getElementById("inputB");
+		const diffLeft = document.getElementById("diff-left");
+		const diffRight = document.getElementById("diff-right");
+		const diffLeftResolve = document.getElementById("diff-left-resolve");
+		const diffRightResolve = document.getElementById("diff-right-resolve");
+
+		if (
+			!inputA ||
+			!inputB ||
+			!diffLeft ||
+			!diffRight ||
+			!diffLeftResolve ||
+			!diffRightResolve
+		)
+			return;
+
+		const beforeHtml = inputA.innerHTML;
+		const afterHtml = inputB.innerHTML;
+
+		renderDiffBetweenHtml(beforeHtml, afterHtml, diffLeft, diffRight);
+		renderDiffBetweenHtml(beforeHtml, afterHtml, diffLeftResolve, diffRightResolve);
 		removeActionsPanel();
 		bindOutputInteractionsOnce();
 	}

@@ -169,7 +169,8 @@
         <button class="primary" onclick="showDiff()">Show Diff</button>
       </div>
 
-      <div id="diff-output">
+      <div id="diff-output" class="output-section">
+        <h2 class="section-heading">Diff Preview (No Resolving)</h2>
         <div class="diff-column">
           <h2 class="diff-heading">Deletions</h2>
           <div class="diff-box" id="diff-left"></div>
@@ -177,6 +178,18 @@
         <div class="diff-column">
           <h2 class="diff-heading">Additions</h2>
           <div class="diff-box" id="diff-right"></div>
+        </div>
+      </div>
+
+      <div id="diff-output-resolve" class="output-section">
+        <h2 class="section-heading">Resolve Changes</h2>
+        <div class="diff-column">
+          <h2 class="diff-heading">Deletions</h2>
+          <div class="diff-box" id="diff-left-resolve"></div>
+        </div>
+        <div class="diff-column">
+          <h2 class="diff-heading">Additions</h2>
+          <div class="diff-box" id="diff-right-resolve"></div>
         </div>
       </div>
     </div>

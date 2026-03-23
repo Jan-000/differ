@@ -142,6 +142,27 @@ button.primary:hover {
   flex-wrap: wrap;
 }
 
+#diff-output-resolve {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.output-section {
+  width: 100%;
+}
+
+.section-heading {
+  width: 100%;
+  margin: 0.5rem 0 0.5rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 .diff-box {
   padding: 1rem;
   border-radius: 12px;

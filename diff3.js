@@ -339,13 +339,31 @@ console.log("running diff3");
 
 	// ─────────────────────────────────────────────────────────────────────────
 	// STAGE 6 — Segment Merging + Side HTML Assembly
-	// Build both outputs from aligned diff parts in one pass so unchanged
-	// segments receive shared left/right identifiers at the source.
+	// Build both outputs from aligned diff parts in one pass, merge
+	// replacement runs, and assign corresponding-change attributes to
+	// changed marks using adjacent unchanged-run context.
 	// ─────────────────────────────────────────────────────────────────────────
 
 	function wrapEqualHtml(equalHtml, unchangedIndex) {
 		if (!equalHtml) return "";
 		return `<mark diffing-unchanged-${unchangedIndex}>${equalHtml}</mark>`;
+	}
+
+	function getCorrespondingChangeAttrName(unchangedIndex, side) {
+		if (!unchangedIndex) return "";
+		const numericIndex = Number(unchangedIndex);
+		if (!Number.isFinite(numericIndex)) return "";
+
+		const changeIndex = side === "left" ? numericIndex * 2 - 1 : numericIndex * 2;
+		return `corresponding-change-${changeIndex}`;
+	}
+
+	function renderChangedMark(className, html, attrNames) {
+		if (!html) return "";
+
+		const uniqueAttrNames = Array.from(new Set((attrNames || []).filter(Boolean)));
+		const attrs = uniqueAttrNames.map((name) => ` ${name}`).join("");
+		return `<mark class="${className}"${attrs}>${html}</mark>`;
 	}
 
 	function buildBothSideHtmlFromAligned(alignedParts) {
@@ -355,43 +373,81 @@ console.log("running diff3");
 		let activeLeftChanged = "";
 		let activeRightChanged = "";
 		let unchangedIndex = 1;
+		let previousUnchangedIndex = 0;
+		let changedBlockLeftNeighborUnchangedIndex = 0;
 
-		function flushChanged() {
+		function ensureChangedBlockStarted() {
+			if (activeLeftChanged || activeRightChanged) return;
+			changedBlockLeftNeighborUnchangedIndex = previousUnchangedIndex;
+		}
+
+		function flushChanged(rightNeighborUnchangedIndex) {
+			if (!activeLeftChanged && !activeRightChanged) return;
+
+			const sideCandidates = [];
+			if (changedBlockLeftNeighborUnchangedIndex) {
+				sideCandidates.push(
+					getCorrespondingChangeAttrName(changedBlockLeftNeighborUnchangedIndex, "left"),
+				);
+			}
+
+			if (rightNeighborUnchangedIndex) {
+				sideCandidates.push(getCorrespondingChangeAttrName(rightNeighborUnchangedIndex, "right"));
+			}
+
+			const sharedAttrNames = sideCandidates.length ? [sideCandidates[0]] : [];
+
 			if (activeLeftChanged) {
-				leftHtml += `<mark class="deleted">${activeLeftChanged}</mark>`;
-				activeLeftChanged = "";
+				leftHtml += renderChangedMark("deleted", activeLeftChanged, sharedAttrNames);
 			}
 
 			if (activeRightChanged) {
-				rightHtml += `<mark class="added">${activeRightChanged}</mark>`;
-				activeRightChanged = "";
+				rightHtml += renderChangedMark("added", activeRightChanged, sharedAttrNames);
 			}
+
+			activeLeftChanged = "";
+			activeRightChanged = "";
+			changedBlockLeftNeighborUnchangedIndex = 0;
 		}
 
-		alignedParts.forEach((part) => {
+		alignedParts.forEach((part, index) => {
 			if (part.removed) {
+				ensureChangedBlockStarted();
 				activeLeftChanged += renderSlicesToHtml(part.beforeTokens);
 				return;
 			}
 
 			if (part.added) {
+				ensureChangedBlockStarted();
 				activeRightChanged += renderSlicesToHtml(part.afterTokens);
 				return;
 			}
 
 			if (part.equal) {
-				flushChanged();
+				const nextPart = alignedParts[index + 1];
+				const nextIsChanged = Boolean(nextPart && (nextPart.removed || nextPart.added));
+				const hasActiveReplacement = Boolean(activeLeftChanged && activeRightChanged);
+
+				// Keep bridge whitespace inside one replacement block so pairing attrs stay stable.
+				if (hasActiveReplacement && nextIsChanged && isWhitespaceOnly(part.value)) {
+					activeLeftChanged += renderSlicesToHtml(part.beforeTokens);
+					activeRightChanged += renderSlicesToHtml(part.afterTokens);
+					return;
+				}
+
+				flushChanged(unchangedIndex);
 
 				const leftEqualHtml = renderSlicesToHtml(part.beforeTokens);
 				const rightEqualHtml = renderSlicesToHtml(part.afterTokens);
 
 				leftHtml += wrapEqualHtml(leftEqualHtml, unchangedIndex);
 				rightHtml += wrapEqualHtml(rightEqualHtml, unchangedIndex);
+				previousUnchangedIndex = unchangedIndex;
 				unchangedIndex += 1;
 			}
 		});
 
-		flushChanged();
+		flushChanged(0);
 
 		return {
 			left: leftHtml || '<span style="color:#aaa">(none)</span>',

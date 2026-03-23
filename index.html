@@ -83,6 +83,23 @@
           <div class="alt-space" aria-hidden="true"></div>
         </div>
       </div>
+      <div id="reference-pane" class="reference-pane" style="display:none">
+        <div class="reference-pane-header">
+          <h3>Original Diff Reference</h3>
+          <button class="close-ref-btn" onclick="toggleReferenceSidebar()">−</button>
+        </div>
+        <div class="reference-pane-content">
+          <div class="reference-column">
+            <h4>Deletions</h4>
+            <div class="ref-box" id="ref-left"></div>
+          </div>
+          <div class="reference-column">
+            <h4>Additions</h4>
+            <div class="ref-box" id="ref-right"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="inputs-row">
         <div class="input-column">
           <div class="toolbar">
@@ -169,23 +186,6 @@
         <button class="primary" onclick="showDiff()">Show Diff</button>
         <button class="secondary" id="edit-inputs-btn" onclick="restoreInputsForEditing()" style="display:none">Edit inputs</button>
         <button class="secondary" id="ref-toggle-btn" onclick="toggleReferenceSidebar()" style="display:none">Reference</button>
-      </div>
-
-      <div id="reference-sidebar" class="reference-sidebar" style="display:none">
-        <div class="reference-header">
-          <h3>Original Diff</h3>
-          <button class="close-ref-btn" onclick="toggleReferenceSidebar()">×</button>
-        </div>
-        <div class="reference-content">
-          <div class="diff-column">
-            <h4>Deletions</h4>
-            <div class="diff-box" id="ref-left"></div>
-          </div>
-          <div class="diff-column">
-            <h4>Additions</h4>
-            <div class="diff-box" id="ref-right"></div>
-          </div>
-        </div>
       </div>
     </div>
     <details id="about" class="about">
@@ -296,9 +296,9 @@
       }
 
       function toggleReferenceSidebar() {
-        const sidebar = document.getElementById("reference-sidebar");
-        if (sidebar) {
-          sidebar.style.display = sidebar.style.display === "none" ? "block" : "none";
+        const pane = document.getElementById("reference-pane");
+        if (pane) {
+          pane.style.display = pane.style.display === "none" ? "block" : "none";
         }
       }
 

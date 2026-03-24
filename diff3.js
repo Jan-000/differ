@@ -799,11 +799,11 @@ console.log("running diff3");
 		rejectButton.type = "button";
 		rejectButton.className = "revert-button";
 		rejectButton.setAttribute("aria-label", "Reject change");
-		rejectButton.setAttribute("data-hover-label", "Reject");
 		rejectButton.innerHTML = `
 			<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
 				<path d="M18.3 5.71 12 12l6.3 6.29-1.41 1.41L10.59 13.41 4.29 19.7 2.88 18.29 9.17 12 2.88 5.71 4.29 4.3l6.3 6.29 6.29-6.3z" fill="currentColor"/>
-			</svg>`;
+			</svg>
+			<span class="action-button-label">Reject</span>`;
 		rejectButton.addEventListener("click", (event) => {
 			event.preventDefault();
 			event.stopPropagation();
@@ -814,11 +814,11 @@ console.log("running diff3");
 		acceptButton.type = "button";
 		acceptButton.className = "accept-button";
 		acceptButton.setAttribute("aria-label", "Accept change");
-		acceptButton.setAttribute("data-hover-label", "Accept");
 		acceptButton.innerHTML = `
 			<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
 				<path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/>
-			</svg>`;
+			</svg>
+			<span class="action-button-label">Accept</span>`;
 		acceptButton.addEventListener("click", (event) => {
 			event.preventDefault();
 			event.stopPropagation();
@@ -1022,3 +1022,11 @@ console.log("running diff3");
 		}
 	} catch (error) { }
 })(typeof window !== "undefined" ? {} : {});
+
+// input field w dark modzie contras
+// focus State
+// podkreslanie na kolor, bo to nie primary cta
+// aryginalny input na dol
+// naglowki na inputach
+// show diff kolorwy i z prawej
+// about w footerze

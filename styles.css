@@ -279,8 +279,8 @@ button.secondary:hover {
   border: 1px solid rgba(15, 23, 42, 0.06);
   border-radius: 6px;
   padding: 0.75rem;
-  font-size: 0.8rem;
-  line-height: 1.4;
+  font-size: 0.95rem;
+  line-height: 1.5;
   max-height: 120px;
   overflow-y: auto;
   opacity: 0.9;
@@ -368,22 +368,24 @@ button.secondary:hover {
   position: relative;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: 34px;
   height: 34px;
-  padding: 0;
+  padding: 0 10px 0 8px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  line-height: 0;
+  line-height: 1;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   cursor: pointer;
   background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.96);
   box-shadow: 0 4px 12px rgba(2, 6, 23, 0.08);
+  overflow: hidden;
   transition:
+    width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
     background 0.14s ease,
     border-color 0.14s ease,
     color 0.14s ease,
@@ -394,22 +396,24 @@ button.secondary:hover {
   position: relative;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: 34px;
   height: 34px;
-  padding: 0;
+  padding: 0 10px 0 8px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  line-height: 0;
+  line-height: 1;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   cursor: pointer;
   background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.96);
   box-shadow: 0 4px 12px rgba(2, 6, 23, 0.08);
+  overflow: hidden;
   transition:
+    width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
     background 0.14s ease,
     border-color 0.14s ease,
     color 0.14s ease,
@@ -418,7 +422,9 @@ button.secondary:hover {
 
 .revert-button:hover,
 .accept-button:hover {
+  width: 86px;
   transform: translateY(-1px);
+  transition-delay: 2500ms, 2500ms, 2500ms, 2500ms, 2500ms;
 }
 
 .revert-button svg,
@@ -426,41 +432,35 @@ button.secondary:hover {
   width: 18px;
   height: 18px;
   display: block;
+  flex: 0 0 18px;
 }
 
-.revert-button::after,
-.accept-button::after {
-  content: attr(data-hover-label);
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%) translateY(-4px);
-  padding: 6px 8px;
-  border-radius: 7px;
-  background: rgba(15, 23, 42, 0.88);
-  color: rgba(255, 255, 255, 0.96);
+.action-button-label {
+  display: inline-block;
+  max-width: 0;
+  margin-left: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  line-height: 1;
   text-transform: uppercase;
-  white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.18);
+  transform: translateX(4px);
   transition:
-    opacity 0.16s ease,
-    transform 0.16s ease,
-    visibility 0s linear 0.16s;
+    max-width 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+    margin-left 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.18s ease,
+    transform 0.18s ease;
 }
 
-.revert-button:hover::after,
-.accept-button:hover::after {
+.revert-button:hover .action-button-label,
+.accept-button:hover .action-button-label {
+  max-width: 56px;
+  margin-left: 8px;
   opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-  transition-delay: 2500ms, 2500ms, 2500ms;
+  transform: translateX(0);
+  transition-delay: 2500ms, 2500ms, 2500ms, 2500ms;
 }
 
 .revert-button-left {

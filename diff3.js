@@ -788,6 +788,12 @@ console.log("running diff3");
 	function showActionButtonsForMark(mark) {
 		if (!mark) return;
 
+		// Toggle: clicking the same mark again hides the panel
+		if (selectedChangedMark === mark) {
+			removeActionsPanel();
+			return;
+		}
+
 		removeActionsPanel();
 
 		selectedChangedMark = mark;
@@ -861,6 +867,12 @@ console.log("running diff3");
 		if (hasBoundDiffInteractions) return;
 		hasBoundDiffInteractions = true;
 
+		document.addEventListener("mousedown", (event) => {
+			if (getChangedMarkFromEventTarget(event.target)) {
+				event.preventDefault();
+			}
+		});
+
 		document.addEventListener("click", (event) => {
 			const clickedMark = getChangedMarkFromEventTarget(event.target);
 
@@ -907,6 +919,12 @@ console.log("running diff3");
 		inputA.contentEditable = "true";
 		inputB.contentEditable = "true";
 		inputsAreInDiffMode = false;
+
+		// Restore toolbars
+		document.querySelectorAll(".toolbar").forEach(t => {
+			t.classList.remove("toolbar-hidden");
+			t.addEventListener("transitionend", () => t.classList.remove("toolbar-fading"), { once: true });
+		});
 	}
 
 	function renderDiffBetweenHtml(beforeHtml, afterHtml, diffLeft, diffRight) {
@@ -968,6 +986,14 @@ console.log("running diff3");
 		inputA.contentEditable = "false";
 		inputB.contentEditable = "false";
 		inputsAreInDiffMode = true;
+
+		// Fade out toolbars only when there's actual content to diff
+		const hasContent = (inputA.textContent || "").trim() || (inputB.textContent || "").trim();
+		if (hasContent) {
+			document.querySelectorAll(".toolbar").forEach(t => {
+				t.classList.add("toolbar-fading", "toolbar-hidden");
+			});
+		}
 
 		// Store reference versions for the sidebar
 		referenceLeftHtml = inputA.innerHTML;

@@ -131,24 +131,19 @@ button.primary {
   padding: 0.85rem 1.25rem;
   border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.28);
   transition:
-    transform 0.08s ease,
-    box-shadow 0.12s ease,
-    filter 0.12s ease;
+    background-color 0.4s ease,
+    color 0.4s ease,
+    filter 0.4s ease,
+    opacity 0.4s ease;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 700;
 }
 
 button.primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.34);
-  filter: brightness(1.03);
-}
-
-button.primary:active {
-  transform: translateY(0);
+  background: #1d4ed8;
+  filter: none;
 }
 
 button.primary:disabled {
@@ -427,8 +422,7 @@ button.secondary:hover {
     width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
     background 0.14s ease,
     border-color 0.14s ease,
-    color 0.14s ease,
-    transform 0.08s ease;
+    color 0.14s ease;
 }
 
 .accept-button {
@@ -455,15 +449,13 @@ button.secondary:hover {
     width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
     background 0.14s ease,
     border-color 0.14s ease,
-    color 0.14s ease,
-    transform 0.08s ease;
+    color 0.14s ease;
 }
 
 .revert-button:hover,
 .accept-button:hover {
-  width: 86px;
-  transform: translateY(-1px);
-  transition-delay: 2000ms, 0ms, 0ms, 0ms, 2000ms;
+  width: 94px;
+  transition-delay: 2000ms, 0ms, 0ms, 0ms;
 }
 
 .revert-button svg,
@@ -495,7 +487,7 @@ button.secondary:hover {
 
 .revert-button:hover .action-button-label,
 .accept-button:hover .action-button-label {
-  max-width: 56px;
+  max-width: 64px;
   margin-left: 8px;
   opacity: 1;
   transform: translateX(0);
@@ -518,7 +510,9 @@ button.secondary:hover {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-mark[unchanged] {
+.diffing-unchanged {
+  background: transparent;
+  color: inherit;
   opacity: 0.95;
 }
 

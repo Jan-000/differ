@@ -347,7 +347,7 @@ console.log("running diff3");
 
 	function wrapEqualHtml(equalHtml, unchangedIndex) {
 		if (!equalHtml) return "";
-		return `<mark diffing-unchanged-${unchangedIndex}>${equalHtml}</mark>`;
+		return `<mark class="diffing-unchanged" diffing-unchanged-${unchangedIndex}>${equalHtml}</mark>`;
 	}
 
 	function getCorrespondingChangeAttrName(unchangedIndex, side) {

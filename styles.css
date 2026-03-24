@@ -350,8 +350,19 @@ button.secondary:hover {
 .added { background: #7affa2; color: #065f46; }
 .removed, .deleted { background: #ff818a; color: #9f1239; }
 
-.added.change-selected { background: #66e98d; }
-.deleted.change-selected { background: #ff727d; }
+.added:hover,
+.added.change-selected,
+.added.mark-hover-peer {
+  background: #16a34a;
+  box-shadow: 0 0 12px rgba(22, 163, 74, 0.35);
+}
+
+.deleted:hover,
+.deleted.change-selected,
+.deleted.mark-hover-peer {
+  background: #dc2626;
+  box-shadow: 0 0 12px rgba(220, 38, 38, 0.35);
+}
 
 .diffing-unchanged {
   background: transparent;

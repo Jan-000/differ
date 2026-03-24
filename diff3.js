@@ -548,6 +548,11 @@ console.log("running diff3");
 
 		if (selectedChangedMark) {
 			selectedChangedMark.classList.remove("change-selected");
+			// Also remove from corresponding mark
+			const correspondingMark = findCorrespondingMark(selectedChangedMark);
+			if (correspondingMark) {
+				correspondingMark.classList.remove("change-selected");
+			}
 		}
 
 		selectedChangedMark = null;
@@ -798,6 +803,11 @@ console.log("running diff3");
 
 		selectedChangedMark = mark;
 		selectedChangedMark.classList.add("change-selected");
+		// Also highlight the corresponding mark
+		const correspondingMark = findCorrespondingMark(selectedChangedMark);
+		if (correspondingMark) {
+			correspondingMark.classList.add("change-selected");
+		}
 
 		const panel = document.createElement("div");
 		panel.className = "change-actions";
@@ -863,6 +873,48 @@ console.log("running diff3");
 		);
 	}
 
+	function bindMarkHoverInteractions() {
+		document.addEventListener("mouseover", (event) => {
+			const hoveredMark = event.target instanceof Element 
+				? event.target.closest("mark.added, mark.deleted")
+				: null;
+			
+			if (!hoveredMark) return;
+			
+			const attrName = getChangeAttrName(hoveredMark);
+			if (!attrName) return;
+			
+			// Find all marks with the same corresponding-change attribute
+			const selector = `mark[${attrName}]`;
+			const correspondingMarks = document.querySelectorAll(selector);
+			
+			correspondingMarks.forEach(mark => {
+				if (mark !== hoveredMark) {
+					mark.classList.add("mark-hover-peer");
+				}
+			});
+		});
+		
+		document.addEventListener("mouseout", (event) => {
+			const hoveredMark = event.target instanceof Element 
+				? event.target.closest("mark.added, mark.deleted")
+				: null;
+			
+			if (!hoveredMark) return;
+			
+			const attrName = getChangeAttrName(hoveredMark);
+			if (!attrName) return;
+			
+			// Remove hover-peer class from all marks with this attribute
+			const selector = `mark[${attrName}]`;
+			const correspondingMarks = document.querySelectorAll(selector);
+			
+			correspondingMarks.forEach(mark => {
+				mark.classList.remove("mark-hover-peer");
+			});
+		});
+	}
+
 	function bindOutputInteractionsOnce() {
 		if (hasBoundDiffInteractions) return;
 		hasBoundDiffInteractions = true;
@@ -904,6 +956,8 @@ console.log("running diff3");
 				removeActionsPanel();
 			}
 		});
+
+		bindMarkHoverInteractions();
 	}
 
 	function restoreInputsForEditing() {

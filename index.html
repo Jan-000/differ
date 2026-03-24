@@ -106,34 +106,34 @@
         <div class="input-column">
           <div class="toolbar">
             <button
-              type="button"
-              class="toolbar-btn color-btn"
-              onmousedown="event.preventDefault()"
-              onclick="applyBgColor('inputA')"
+            type="button"
+            class="toolbar-btn"
+            onclick="applyStyle('inputA', 'bold')"
             >
-              <mark>Aa</mark>
-            </button>
-            <button
-              type="button"
-              class="toolbar-btn"
-              onclick="applyStyle('inputA', 'bold')"
-            >
-              <b>B</b>
-            </button>
-            <button
-              type="button"
-              class="toolbar-btn"
-              onclick="applyStyle('inputA', 'italic')"
-            >
-              <i>I</i>
-            </button>
-            <button
-              type="button"
-              class="toolbar-btn"
-              onclick="applyStyle('inputA', 'underline')"
-            >
-              <u>U</u>
-            </button>
+            <b>B</b>
+          </button>
+          <button
+          type="button"
+          class="toolbar-btn"
+          onclick="applyStyle('inputA', 'italic')"
+          >
+          <i>I</i>
+        </button>
+        <button
+        type="button"
+        class="toolbar-btn"
+        onclick="applyStyle('inputA', 'underline')"
+        >
+        <u>U</u>
+      </button>
+        <button
+          type="button"
+          class="toolbar-btn color-btn"
+          onmousedown="event.preventDefault()"
+          onclick="applyBgColor('inputA')"
+        >
+          <mark>Aa</mark>
+        </button>
           </div>
           <div
             id="inputA"
@@ -146,37 +146,37 @@
         <div class="input-column">
           <div class="toolbar">
             <button
-              type="button"
-              class="toolbar-btn color-btn"
-              onmousedown="event.preventDefault()"
-              onclick="applyBgColor('inputB')"
+            type="button"
+            class="toolbar-btn"
+            onclick="applyStyle('inputB', 'bold')"
             >
-              <mark>Aa</mark>
-            </button>
-            <button
-              type="button"
-              class="toolbar-btn"
-              onclick="applyStyle('inputB', 'bold')"
-            >
-              <b>B</b>
-            </button>
-            <button
-              type="button"
-              class="toolbar-btn"
-              onclick="applyStyle('inputB', 'italic')"
-            >
-              <i>I</i>
-            </button>
-            <button
-              type="button"
-              class="toolbar-btn"
-              onclick="applyStyle('inputB', 'underline')"
-            >
-              <u>U</u>
-            </button>
-          </div>
-          <div
-            id="inputB"
+            <b>B</b>
+          </button>
+          <button
+          type="button"
+          class="toolbar-btn"
+          onclick="applyStyle('inputB', 'italic')"
+          >
+          <i>I</i>
+        </button>
+        <button
+        type="button"
+        class="toolbar-btn"
+        onclick="applyStyle('inputB', 'underline')"
+        >
+        <u>U</u>
+      </button>
+      <button
+        type="button"
+        class="toolbar-btn color-btn"
+        onmousedown="event.preventDefault()"
+        onclick="applyBgColor('inputB')"
+      >
+        <mark>Aa</mark>
+      </button>
+    </div>
+    <div
+    id="inputB"
             contenteditable="true"
             class="styled-input"
             data-placeholder="Enter second string..."
@@ -185,7 +185,7 @@
       </div>
 
       <div class="diff-controls">
-        <button class="primary" onclick="showDiff()">SHOW DIFF</button>
+        <button id="show-diff-btn" class="primary" onclick="showDiff()" disabled>SHOW DIFF</button>
       </div>
     </div>
     <details id="about" class="about">
@@ -304,6 +304,38 @@
         }
       }
 
+      function getEditorValue(id) {
+        const element = document.getElementById(id);
+        if (!element) return "";
+
+        return (element.textContent || "")
+          .replace(/\u00a0/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function updateShowDiffButtonState() {
+        const button = document.getElementById("show-diff-btn");
+        if (!button) return;
+
+        const hasInputA = getEditorValue("inputA").length > 0;
+        const hasInputB = getEditorValue("inputB").length > 0;
+        button.disabled = !(hasInputA && hasInputB);
+      }
+
+      function bindEditorState() {
+        ["inputA", "inputB"].forEach(function (id) {
+          const element = document.getElementById(id);
+          if (!element) return;
+
+          ["input", "keyup", "paste", "blur"].forEach(function (eventName) {
+            element.addEventListener(eventName, updateShowDiffButtonState);
+          });
+        });
+
+        updateShowDiffButtonState();
+      }
+
       function applyEngineApi(api) {
         if (!api) return;
         if (typeof api.applyStyle === "function") window.applyStyle = api.applyStyle;
@@ -398,6 +430,7 @@
         const wordsLink = document.getElementById("engine-words-link");
 
         initThemeControls();
+        bindEditorState();
 
         if (themeToggle) {
           themeToggle.addEventListener("click", toggleTheme);

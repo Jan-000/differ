@@ -39,7 +39,8 @@ console.log("running diff3");
 		if (!div.contains(range.commonAncestorContainer)) return;
 
 		const newSpan = document.createElement("span");
-		newSpan.style.backgroundColor = "#20bfd4";
+		newSpan.style.backgroundColor = "var(--marker-highlight)";
+		newSpan.style.color = "var(--marker-ink)";
 
 		try {
 			range.surroundContents(newSpan);

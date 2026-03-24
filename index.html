@@ -1,458 +1,387 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>String Diff Tool</title>
-    <script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
-    <script>
-      // Set theme early to avoid icon/theme flicker before JS loads
-      (function () {
-        try {
-          var stored = localStorage.getItem("theme");
-          var prefersDark =
-            window.matchMedia &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches;
-          var theme =
-            stored === "dark" || stored === "light"
-              ? stored
-              : prefersDark
-                ? "dark"
-                : "light";
-          if (theme === "dark")
-            document.documentElement.setAttribute("data-theme", "dark");
-        } catch (e) {}
-      })();
-    </script>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
 
-  <body>
-    <div class="container">
-      <div class="header-row">
-        <h1 id="page-title">html string diffing tool - newest engine</h1>
-        <div class="header-actions">
-          <button
-            id="theme-toggle"
-            class="theme-toggle"
-            aria-label="Toggle theme"
-            aria-pressed="false"
-          >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>String Diff Tool</title>
+  <script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
+  <script>
+    // Set theme early to avoid icon/theme flicker before JS loads
+    (function () {
+      try {
+        var stored = localStorage.getItem("theme");
+        var prefersDark =
+          window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme =
+          stored === "dark" || stored === "light"
+            ? stored
+            : prefersDark
+              ? "dark"
+              : "light";
+        if (theme === "dark")
+          document.documentElement.setAttribute("data-theme", "dark");
+      } catch (e) { }
+    })();
+  </script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="header-row">
+      <h1 id="page-title">html string diffing tool - newest engine</h1>
+      <div class="header-actions">
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" aria-pressed="false">
           <!-- Sun icon -->
-          <svg
-            class="icon icon-sun"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
+          <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true">
             <path
               d="M12 4V2M12 22v-2M4 12H2M22 12h-2M5.64 5.64L4.22 4.22M19.78 19.78l-1.42-1.42M19.78 4.22l-1.42 1.42M5.64 18.36l-1.42 1.42"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <circle
-              cx="12"
-              cy="12"
-              r="3"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
+              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
           </svg>
           <!-- Moon icon -->
-          <svg
-            class="icon icon-moon"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <path
-              d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
+          <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round" />
           </svg>
-          </button>
-          <div class="alt-space" aria-hidden="true"></div>
-        </div>
-      </div>
-      <div id="reference-pane-shell" class="reference-pane-shell reference-pane-shell-hidden">
-        <div id="reference-pane" class="reference-pane reference-pane-hidden reference-pane-collapsed">
-          <div class="reference-pane-header" onclick="toggleReferenceSidebar()">
-            <span class="reference-arrow">▸</span>
-            <h3>Show original inputs</h3>
-          </div>
-          <div class="reference-pane-content">
-            <div class="reference-column">
-              <h4>Deletions</h4>
-              <div class="ref-box" id="ref-left"></div>
-            </div>
-            <div class="reference-column">
-              <h4>Additions</h4>
-              <div class="ref-box" id="ref-right"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="inputs-row">
-        <div class="input-column">
-          <div class="toolbar">
-            <button
-            type="button"
-            class="toolbar-btn"
-            onclick="applyStyle('inputA', 'bold')"
-            >
-            <b>B</b>
-          </button>
-          <button
-          type="button"
-          class="toolbar-btn"
-          onclick="applyStyle('inputA', 'italic')"
-          >
-          <i>I</i>
         </button>
-        <button
-        type="button"
-        class="toolbar-btn"
-        onclick="applyStyle('inputA', 'underline')"
-        >
-        <u>U</u>
-      </button>
-        <button
-          type="button"
-          class="toolbar-btn color-btn"
-          onmousedown="event.preventDefault()"
-          onclick="applyBgColor('inputA')"
-        >
-          <mark>Aa</mark>
-        </button>
-          </div>
-          <div
-            id="inputA"
-            contenteditable="true"
-            class="styled-input"
-            data-placeholder="Enter first string..."
-          ></div>
-        </div>
-
-        <div class="input-column">
-          <div class="toolbar">
-            <button
-            type="button"
-            class="toolbar-btn"
-            onclick="applyStyle('inputB', 'bold')"
-            >
-            <b>B</b>
-          </button>
-          <button
-          type="button"
-          class="toolbar-btn"
-          onclick="applyStyle('inputB', 'italic')"
-          >
-          <i>I</i>
-        </button>
-        <button
-        type="button"
-        class="toolbar-btn"
-        onclick="applyStyle('inputB', 'underline')"
-        >
-        <u>U</u>
-      </button>
-      <button
-        type="button"
-        class="toolbar-btn color-btn"
-        onmousedown="event.preventDefault()"
-        onclick="applyBgColor('inputB')"
-      >
-        <mark>Aa</mark>
-      </button>
-    </div>
-    <div
-    id="inputB"
-            contenteditable="true"
-            class="styled-input"
-            data-placeholder="Enter second string..."
-          ></div>
-        </div>
-      </div>
-
-      <div class="diff-controls">
-        <button id="show-diff-btn" class="primary" onclick="showDiff()" disabled>SHOW DIFF</button>
+        <div class="alt-space" aria-hidden="true"></div>
       </div>
     </div>
-    <details id="about" class="about">
-      <summary>About</summary>
-      <div class="about-body">
-        <p>
-          Placeholder: This tool shows differences between two rich-text
-          strings. It supports inline highlights, basic formatting and revert
-          actions. Put: explanation about heuristic and edge cases. Make
-          explanation progressively expansible. A la limite that could be a
-          small model, trained to answer questions and explain the repo.
-        </p>
-        <p><strong>Previous engines</strong></p>
-        <p>
-          <a href="#" id="engine-tokens-link">diffArrays of tokens</a>
-          &middot;
-          <a href="#" id="engine-words-link">diffWords by words</a>
-        </p>
+    <div id="reference-pane-shell" class="reference-pane-shell reference-pane-shell-hidden">
+      <div id="reference-pane" class="reference-pane reference-pane-hidden reference-pane-collapsed">
+        <div class="reference-pane-header" onclick="toggleReferenceSidebar()">
+          <span class="reference-arrow">▸</span>
+          <h3>Show original inputs</h3>
+        </div>
+        <div class="reference-pane-content">
+          <div class="reference-column">
+            <h4>Deletions</h4>
+            <div class="ref-box" id="ref-left"></div>
+          </div>
+          <div class="reference-column">
+            <h4>Additions</h4>
+            <div class="ref-box" id="ref-right"></div>
+          </div>
+        </div>
       </div>
-    </details>
-    <script>
-      const ENGINE_CONFIGS = {
-        newest: {
-          script: "diff3.js",
-          globalName: "DiffNewest",
-          title: "html string diffing tool - newest engine",
-        },
-        tokens: {
-          script: "diff2.js",
-          globalName: "DiffTokens",
-          title: "html string diffing tool - diffArrays of tokens",
-        },
-        words: {
-          script: "diff.js",
-          globalName: "DiffAlt",
-          title: "html string diffing tool - diffWords by words",
-        },
-      };
-      const DEFAULT_ENGINE = "newest";
-      let activeEngine = DEFAULT_ENGINE;
-      let prefersDarkMql = null;
+    </div>
 
-      function hasStoredTheme() {
-        try {
-          const stored = localStorage.getItem("theme");
-          return stored === "dark" || stored === "light";
-        } catch (e) {
-          return false;
-        }
+    <div class="inputs-row">
+      <div class="input-column">
+        <div class="toolbar">
+          <button type="button" class="toolbar-btn" onclick="applyStyle('inputA', 'bold')">
+            <b>B</b>
+          </button>
+          <button type="button" class="toolbar-btn" onclick="applyStyle('inputA', 'italic')">
+            <i>I</i>
+          </button>
+          <button type="button" class="toolbar-btn" onclick="applyStyle('inputA', 'underline')">
+            <u>U</u>
+          </button>
+          <button type="button" class="toolbar-btn color-btn" onmousedown="event.preventDefault()"
+            onclick="applyBgColor('inputA')">
+            <mark>Abc</mark>
+          </button>
+        </div>
+        <div id="inputA" contenteditable="true" class="styled-input" data-placeholder="Enter first string..."></div>
+      </div>
+
+      <div class="input-column">
+        <div class="toolbar">
+          <button type="button" class="toolbar-btn" onclick="applyStyle('inputB', 'bold')">
+            <b>B</b>
+          </button>
+          <button type="button" class="toolbar-btn" onclick="applyStyle('inputB', 'italic')">
+            <i>I</i>
+          </button>
+          <button type="button" class="toolbar-btn" onclick="applyStyle('inputB', 'underline')">
+            <u>U</u>
+          </button>
+          <button type="button" class="toolbar-btn color-btn" onmousedown="event.preventDefault()"
+            onclick="applyBgColor('inputB')">
+            <mark>Abc</mark>
+          </button>
+        </div>
+        <div id="inputB" contenteditable="true" class="styled-input" data-placeholder="Enter second string..."></div>
+      </div>
+    </div>
+
+    <div class="diff-controls">
+      <button id="show-diff-btn" class="primary" onclick="showDiff()" disabled>SHOW DIFF</button>
+    </div>
+  </div>
+  <details id="about" class="about">
+    <summary>About</summary>
+    <div class="about-body">
+      <p>
+        Placeholder: This tool shows differences between two rich-text
+        strings. It supports inline highlights, basic formatting and revert
+        actions. Put: explanation about heuristic and edge cases. Make
+        explanation progressively expansible. A la limite that could be a
+        small model, trained to answer questions and explain the repo.
+      </p>
+      <p><strong>Previous engines</strong></p>
+      <p>
+        <a href="#" id="engine-tokens-link">diffArrays of tokens</a>
+        &middot;
+        <a href="#" id="engine-words-link">diffWords by words</a>
+      </p>
+    </div>
+  </details>
+  <script>
+    const ENGINE_CONFIGS = {
+      newest: {
+        script: "diff3.js",
+        globalName: "DiffNewest",
+        title: "html string diffing tool - newest engine",
+      },
+      tokens: {
+        script: "diff2.js",
+        globalName: "DiffTokens",
+        title: "html string diffing tool - diffArrays of tokens",
+      },
+      words: {
+        script: "diff.js",
+        globalName: "DiffAlt",
+        title: "html string diffing tool - diffWords by words",
+      },
+    };
+    const DEFAULT_ENGINE = "newest";
+    let activeEngine = DEFAULT_ENGINE;
+    let prefersDarkMql = null;
+
+    function hasStoredTheme() {
+      try {
+        const stored = localStorage.getItem("theme");
+        return stored === "dark" || stored === "light";
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function getPreferredTheme() {
+      try {
+        const stored = localStorage.getItem("theme");
+        if (stored === "dark" || stored === "light") return stored;
+      } catch (e) { }
+
+      if (window.matchMedia) {
+        return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       }
 
-      function getPreferredTheme() {
-        try {
-          const stored = localStorage.getItem("theme");
-          if (stored === "dark" || stored === "light") return stored;
-        } catch (e) {}
+      return getResolvedTheme();
+    }
 
-        if (window.matchMedia) {
-          return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-        }
+    function getResolvedTheme() {
+      const root = document.documentElement;
+      return root.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    }
 
-        return getResolvedTheme();
+    function applyTheme(theme) {
+      const root = document.documentElement;
+      if (theme === "dark") {
+        root.setAttribute("data-theme", "dark");
+      } else {
+        root.removeAttribute("data-theme");
       }
 
-      function getResolvedTheme() {
-        const root = document.documentElement;
-        return root.getAttribute("data-theme") === "dark" ? "dark" : "light";
+      const toggle = document.getElementById("theme-toggle");
+      if (toggle) {
+        const isDark = theme === "dark";
+        toggle.setAttribute("aria-pressed", String(isDark));
+        toggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+        toggle.title = isDark ? "Switch to light mode" : "Switch to dark mode";
       }
+    }
 
-      function applyTheme(theme) {
-        const root = document.documentElement;
-        if (theme === "dark") {
-          root.setAttribute("data-theme", "dark");
-        } else {
-          root.removeAttribute("data-theme");
-        }
+    function toggleTheme() {
+      const current = getResolvedTheme();
+      const next = current === "dark" ? "light" : "dark";
+      applyTheme(next);
+      try {
+        localStorage.setItem("theme", next);
+      } catch (e) { }
+    }
 
-        const toggle = document.getElementById("theme-toggle");
-        if (toggle) {
-          const isDark = theme === "dark";
-          toggle.setAttribute("aria-pressed", String(isDark));
-          toggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
-          toggle.title = isDark ? "Switch to light mode" : "Switch to dark mode";
-        }
-      }
+    function initThemeControls() {
+      applyTheme(getPreferredTheme());
 
-      function toggleTheme() {
-        const current = getResolvedTheme();
-        const next = current === "dark" ? "light" : "dark";
-        applyTheme(next);
-        try {
-          localStorage.setItem("theme", next);
-        } catch (e) {}
-      }
+      if (!window.matchMedia) return;
 
-      function initThemeControls() {
-        applyTheme(getPreferredTheme());
-
-        if (!window.matchMedia) return;
-
-        try {
-          prefersDarkMql = window.matchMedia("(prefers-color-scheme: dark)");
-          prefersDarkMql.addEventListener("change", function (event) {
-            if (hasStoredTheme()) return;
-            applyTheme(event.matches ? "dark" : "light");
-          });
-        } catch (e) {}
-      }
-
-      function toggleReferenceSidebar() {
-        const pane = document.getElementById("reference-pane");
-        const shell = document.getElementById("reference-pane-shell");
-        if (pane && shell && !pane.classList.contains("reference-pane-hidden")) {
-          const isCollapsed = pane.classList.toggle("reference-pane-collapsed");
-          shell.classList.toggle("reference-pane-shell-expanded", !isCollapsed);
-        }
-      }
-
-      function getEditorValue(id) {
-        const element = document.getElementById(id);
-        if (!element) return "";
-
-        return (element.textContent || "")
-          .replace(/\u00a0/g, " ")
-          .replace(/\s+/g, " ")
-          .trim();
-      }
-
-      function updateShowDiffButtonState() {
-        const button = document.getElementById("show-diff-btn");
-        if (!button) return;
-
-        const hasInputA = getEditorValue("inputA").length > 0;
-        const hasInputB = getEditorValue("inputB").length > 0;
-        button.disabled = !(hasInputA && hasInputB);
-      }
-
-      function bindEditorState() {
-        ["inputA", "inputB"].forEach(function (id) {
-          const element = document.getElementById(id);
-          if (!element) return;
-
-          ["input", "keyup", "paste", "blur"].forEach(function (eventName) {
-            element.addEventListener(eventName, updateShowDiffButtonState);
-          });
+      try {
+        prefersDarkMql = window.matchMedia("(prefers-color-scheme: dark)");
+        prefersDarkMql.addEventListener("change", function (event) {
+          if (hasStoredTheme()) return;
+          applyTheme(event.matches ? "dark" : "light");
         });
+      } catch (e) { }
+    }
 
-        updateShowDiffButtonState();
+    function toggleReferenceSidebar() {
+      const pane = document.getElementById("reference-pane");
+      const shell = document.getElementById("reference-pane-shell");
+      if (pane && shell && !pane.classList.contains("reference-pane-hidden")) {
+        const isCollapsed = pane.classList.toggle("reference-pane-collapsed");
+        shell.classList.toggle("reference-pane-shell-expanded", !isCollapsed);
+      }
+    }
+
+    function getEditorValue(id) {
+      const element = document.getElementById(id);
+      if (!element) return "";
+
+      return (element.textContent || "")
+        .replace(/\u00a0/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function updateShowDiffButtonState() {
+      const button = document.getElementById("show-diff-btn");
+      if (!button) return;
+
+      const hasInputA = getEditorValue("inputA").length > 0;
+      const hasInputB = getEditorValue("inputB").length > 0;
+      button.disabled = !(hasInputA && hasInputB);
+    }
+
+    function bindEditorState() {
+      ["inputA", "inputB"].forEach(function (id) {
+        const element = document.getElementById(id);
+        if (!element) return;
+
+        ["input", "keyup", "paste", "blur"].forEach(function (eventName) {
+          element.addEventListener(eventName, updateShowDiffButtonState);
+        });
+      });
+
+      updateShowDiffButtonState();
+    }
+
+    function applyEngineApi(api) {
+      if (!api) return;
+      if (typeof api.applyStyle === "function") window.applyStyle = api.applyStyle;
+      if (typeof api.applyBgColor === "function") window.applyBgColor = api.applyBgColor;
+      if (typeof api.showDiff === "function") window.showDiff = api.showDiff;
+      if (typeof api.restoreInputsForEditing === "function") window.restoreInputsForEditing = api.restoreInputsForEditing;
+      if (typeof api.escapeHtml === "function") window.escapeHtml = api.escapeHtml;
+    }
+
+    function syncEngineUi(engineKey) {
+      document.body.classList.add("alt-mode");
+      const t = document.getElementById("page-title");
+      if (t) t.textContent = ENGINE_CONFIGS[engineKey].title;
+
+      if (engineKey === DEFAULT_ENGINE) {
+        document.body.classList.remove("alt-mode");
+        const existing = document.getElementById("alt-close");
+        if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+        return;
       }
 
-      function applyEngineApi(api) {
-        if (!api) return;
-        if (typeof api.applyStyle === "function") window.applyStyle = api.applyStyle;
-        if (typeof api.applyBgColor === "function") window.applyBgColor = api.applyBgColor;
-        if (typeof api.showDiff === "function") window.showDiff = api.showDiff;
-        if (typeof api.restoreInputsForEditing === "function") window.restoreInputsForEditing = api.restoreInputsForEditing;
-        if (typeof api.escapeHtml === "function") window.escapeHtml = api.escapeHtml;
+      if (!document.getElementById("alt-close")) {
+        const btn = document.createElement("button");
+        btn.id = "alt-close";
+        btn.className = "alt-close";
+        btn.title = "Return to newest engine";
+        btn.innerHTML =
+          '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        btn.addEventListener("click", closeAltMode);
+        const header = document.querySelector('.header-row');
+        const toggle = document.getElementById('theme-toggle');
+        const altSpace = document.querySelector('.alt-space');
+        if (altSpace) {
+          altSpace.appendChild(btn);
+        } else if (header && toggle) {
+          header.insertBefore(btn, toggle.nextSibling);
+        } else {
+          const container = document.querySelector('.container') || document.body;
+          container.appendChild(btn);
+        }
       }
+    }
 
-      function syncEngineUi(engineKey) {
-        document.body.classList.add("alt-mode");
-        const t = document.getElementById("page-title");
-        if (t) t.textContent = ENGINE_CONFIGS[engineKey].title;
+    function closeAltMode() {
+      activateEngine(DEFAULT_ENGINE);
+    }
 
-        if (engineKey === DEFAULT_ENGINE) {
-          document.body.classList.remove("alt-mode");
-          const existing = document.getElementById("alt-close");
-          if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+    function activateEngine(engineKey) {
+      const config = ENGINE_CONFIGS[engineKey];
+      if (!config) return;
+
+      function runEngine() {
+        const api = window[config.globalName];
+        if (!api) {
+          console.error("Engine did not export expected API:", config.globalName);
           return;
         }
-
-        if (!document.getElementById("alt-close")) {
-          const btn = document.createElement("button");
-          btn.id = "alt-close";
-          btn.className = "alt-close";
-          btn.title = "Return to newest engine";
-          btn.innerHTML =
-            '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-          btn.addEventListener("click", closeAltMode);
-          const header = document.querySelector('.header-row');
-          const toggle = document.getElementById('theme-toggle');
-          const altSpace = document.querySelector('.alt-space');
-          if (altSpace) {
-            altSpace.appendChild(btn);
-          } else if (header && toggle) {
-            header.insertBefore(btn, toggle.nextSibling);
-          } else {
-            const container = document.querySelector('.container') || document.body;
-            container.appendChild(btn);
-          }
+        activeEngine = engineKey;
+        applyEngineApi(api);
+        syncEngineUi(engineKey);
+        try {
+          if (typeof window.showDiff === "function") window.showDiff();
+        } catch (e) {
+          console.error(e);
         }
       }
 
-      function closeAltMode() {
-        activateEngine(DEFAULT_ENGINE);
+      if (window[config.globalName] && typeof window[config.globalName].showDiff === "function") {
+        runEngine();
+        return;
       }
 
-      function activateEngine(engineKey) {
-        const config = ENGINE_CONFIGS[engineKey];
-        if (!config) return;
-
-        function runEngine() {
-          const api = window[config.globalName];
-          if (!api) {
-            console.error("Engine did not export expected API:", config.globalName);
-            return;
-          }
-          activeEngine = engineKey;
-          applyEngineApi(api);
-          syncEngineUi(engineKey);
-          try {
-            if (typeof window.showDiff === "function") window.showDiff();
-          } catch (e) {
-            console.error(e);
-          }
-        }
-
+      const s = document.createElement("script");
+      s.src = config.script;
+      s.dataset.engine = engineKey;
+      s.onload = function () {
         if (window[config.globalName] && typeof window[config.globalName].showDiff === "function") {
           runEngine();
-          return;
+        } else {
+          console.error("Engine did not export expected API:", config.globalName);
         }
+      };
+      s.onerror = function () {
+        console.error("Failed to load", config.script);
+      };
+      document.body.appendChild(s);
+    }
 
-        const s = document.createElement("script");
-        s.src = config.script;
-        s.dataset.engine = engineKey;
-        s.onload = function () {
-          if (window[config.globalName] && typeof window[config.globalName].showDiff === "function") {
-            runEngine();
-          } else {
-            console.error("Engine did not export expected API:", config.globalName);
-          }
-        };
-        s.onerror = function () {
-          console.error("Failed to load", config.script);
-        };
-        document.body.appendChild(s);
+    document.addEventListener("DOMContentLoaded", function () {
+      const themeToggle = document.getElementById("theme-toggle");
+      const tokensLink = document.getElementById("engine-tokens-link");
+      const wordsLink = document.getElementById("engine-words-link");
+
+      initThemeControls();
+      bindEditorState();
+
+      if (themeToggle) {
+        themeToggle.addEventListener("click", toggleTheme);
       }
 
-      document.addEventListener("DOMContentLoaded", function () {
-        const themeToggle = document.getElementById("theme-toggle");
-        const tokensLink = document.getElementById("engine-tokens-link");
-        const wordsLink = document.getElementById("engine-words-link");
+      if (tokensLink) {
+        tokensLink.addEventListener("click", function (e) {
+          e.preventDefault();
+          activateEngine("tokens");
+        });
+      }
 
-        initThemeControls();
-        bindEditorState();
+      if (wordsLink) {
+        wordsLink.addEventListener("click", function (e) {
+          e.preventDefault();
+          activateEngine("words");
+        });
+      }
 
-        if (themeToggle) {
-          themeToggle.addEventListener("click", toggleTheme);
-        }
+      activateEngine(DEFAULT_ENGINE);
+    });
+  </script>
+  <script src="diff3.js"></script>
+</body>
 
-        if (tokensLink) {
-          tokensLink.addEventListener("click", function (e) {
-            e.preventDefault();
-            activateEngine("tokens");
-          });
-        }
-
-        if (wordsLink) {
-          wordsLink.addEventListener("click", function (e) {
-            e.preventDefault();
-            activateEngine("words");
-          });
-        }
-
-        activateEngine(DEFAULT_ENGINE);
-      });
-    </script>
-    <script src="diff3.js"></script>
-  </body>
 </html>

@@ -385,7 +385,15 @@ button.secondary:hover {
 }
 
 .change-selected {
-  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.2);
+  box-shadow: none;
+}
+
+.added.change-selected {
+  background: #66e98d;
+}
+
+.deleted.change-selected {
+  background: #ff727d;
 }
 
 .change-actions {
@@ -581,11 +589,11 @@ mark[unchanged] {
   display: none;
 }
 
-:root:not([data-theme="dark"]) .theme-toggle .icon-sun {
+:root:not([data-theme="dark"]) .theme-toggle .icon-moon {
   display: block;
 }
 
-:root[data-theme="dark"] .theme-toggle .icon-moon {
+:root[data-theme="dark"] .theme-toggle .icon-sun {
   display: block;
 }
 
@@ -690,6 +698,7 @@ body.alt-mode .container .alt-close {
   padding: 0 0 0.5rem;
   text-align: left;
   color: rgba(15, 23, 42, 0.72);
+  font-size: 0.75rem;
 }
 
 .about summary {
@@ -701,7 +710,7 @@ body.alt-mode .container .alt-close {
   padding: 0;
   color: var(--muted);
   cursor: pointer;
-  font-size: 0.9rem;
+
 }
 
 .about summary::after {

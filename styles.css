@@ -843,13 +843,14 @@ body.alt-mode .container .alt-close {
 }
 
 :root:not([data-theme="dark"]) .styled-input {
-  background: var(--card);
+  background: #f8fafc;
   color: var(--text);
   border-color: rgba(15, 23, 42, 0.08);
   box-shadow: inset 0 2px 6px rgba(15, 23, 42, 0.05);
 }
 
 :root:not([data-theme="dark"]) .styled-input[contenteditable="true"]:hover:not(:focus):not(:focus-visible) {
+  background: #fbfcfe;
   border-color: rgba(15, 23, 42, 0.1);
   box-shadow: inset 0 2px 6px rgba(15, 23, 42, 0.07);
 }

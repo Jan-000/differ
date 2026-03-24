@@ -117,7 +117,7 @@ h1 {
 .styled-input {
   width: 100%;
   min-height: 120px;
-  border: 1px solid transparent;
+  border: .6px solid transparent;
   border-radius: 12px;
   padding: 14px;
   font-size: 0.95rem;
@@ -440,18 +440,18 @@ button.secondary:hover {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  width: 34px;
-  height: 34px;
-  padding: 0 10px 0 8px;
-  font-size: 11px;
+  width: 28px;
+  height: 28px;
+  padding: 0 8px 0 6px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   line-height: 1;
-  border-radius: 8px;
+  border-radius: 7px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.05);
+  background: #122034;
   color: rgba(255, 255, 255, 0.96);
   box-shadow: 0 4px 12px rgba(2, 6, 23, 0.08);
   overflow: hidden;
@@ -467,18 +467,18 @@ button.secondary:hover {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  width: 34px;
-  height: 34px;
-  padding: 0 10px 0 8px;
-  font-size: 11px;
+  width: 28px;
+  height: 28px;
+  padding: 0 8px 0 6px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   line-height: 1;
-  border-radius: 8px;
+  border-radius: 7px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.05);
+  background: #122034;
   color: rgba(255, 255, 255, 0.96);
   box-shadow: 0 4px 12px rgba(2, 6, 23, 0.08);
   overflow: hidden;
@@ -491,7 +491,7 @@ button.secondary:hover {
 
 .revert-button:hover,
 .accept-button:hover {
-  width: 94px;
+  width: 76px;
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.22);
   transition-delay: 2000ms, 0ms, 0ms, 0ms;
@@ -518,10 +518,10 @@ button.secondary:hover {
 
 .revert-button svg,
 .accept-button svg {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   display: block;
-  flex: 0 0 18px;
+  flex: 0 0 14px;
 }
 
 .action-button-label {
@@ -531,7 +531,7 @@ button.secondary:hover {
   opacity: 0;
   overflow: hidden;
   white-space: nowrap;
-  font-size: 10px;
+  font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -545,8 +545,8 @@ button.secondary:hover {
 
 .revert-button:hover .action-button-label,
 .accept-button:hover .action-button-label {
-  max-width: 64px;
-  margin-left: 8px;
+  max-width: 52px;
+  margin-left: 6px;
   opacity: 1;
   transform: translateX(0);
   transition-delay: 2000ms, 2000ms, 2000ms, 2000ms;
@@ -662,13 +662,13 @@ button.secondary:hover {
   background: rgba(255, 255, 255, 0.04);
   color: var(--text);
   border-color: rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), inset 0 2px 6px rgba(0, 0, 0, 0.18);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.18);
 }
 
 :root[data-theme="dark"] .styled-input[contenteditable="true"]:hover:not(:focus):not(:focus-visible) {
   background: rgba(255, 255, 255, 0.055);
   border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 2px 6px rgba(0, 0, 0, 0.22);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.22);
 }
 
 :root[data-theme="dark"] .styled-input:focus,
@@ -707,6 +707,19 @@ button.secondary:hover {
   background: rgba(255, 255, 255, 0.02);
   border-color: rgba(255, 255, 255, 0.1);
   color: rgba(230, 238, 248, 0.9);
+}
+
+:root[data-theme="dark"] .revert-button,
+:root[data-theme="dark"] .accept-button {
+  background: #122034;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(230, 238, 248, 0.94);
+}
+
+:root[data-theme="dark"] .revert-button:hover,
+:root[data-theme="dark"] .accept-button:hover {
+  background: #1a2a40;
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 :root[data-theme="dark"] .toolbar-btn {
@@ -833,18 +846,18 @@ body.alt-mode .container .alt-close {
   background: var(--card);
   color: var(--text);
   border-color: rgba(15, 23, 42, 0.08);
-  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.04), inset 0 2px 6px rgba(15, 23, 42, 0.05);
+  box-shadow: inset 0 2px 6px rgba(15, 23, 42, 0.05);
 }
 
 :root:not([data-theme="dark"]) .styled-input[contenteditable="true"]:hover:not(:focus):not(:focus-visible) {
   border-color: rgba(15, 23, 42, 0.1);
-  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.05), inset 0 2px 6px rgba(15, 23, 42, 0.07);
+  box-shadow: inset 0 2px 6px rgba(15, 23, 42, 0.07);
 }
 
 :root:not([data-theme="dark"]) .styled-input:focus,
 :root:not([data-theme="dark"]) .styled-input:focus-visible {
   border-color: rgba(59, 130, 246, 0.55);
-  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06), inset 0 2px 6px rgba(15, 23, 42, 0.09);
+  box-shadow: inset 0 2px 6px rgba(15, 23, 42, 0.09);
 }
 
 :root:not([data-theme="dark"]) .diff-box {
@@ -856,14 +869,14 @@ body.alt-mode .container .alt-close {
 :root:not([data-theme="dark"]) .revert-button,
 :root:not([data-theme="dark"]) .accept-button {
   border-color: rgba(15, 23, 42, 0.14);
-  background: rgba(255, 255, 255, 0.92);
+  background: #f8fafc;
   color: rgba(15, 23, 42, 0.9);
   box-shadow: 0 2px 8px rgba(2, 6, 23, 0.08);
 }
 
 :root:not([data-theme="dark"]) .revert-button:hover,
 :root:not([data-theme="dark"]) .accept-button:hover {
-  background: rgba(15, 23, 42, 0.05);
+  background: #eef2f7;
   border-color: rgba(15, 23, 42, 0.18);
 }
 

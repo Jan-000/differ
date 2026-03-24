@@ -74,9 +74,19 @@ h1 {
 }
 
 .color-btn {
-  background: #c2a4ff;
-  border: 1px solid rgba(99, 102, 241, 0.08);
-  color: var(--accent);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-weight: inherit;
+}
+
+.color-btn:hover {
+  background: transparent;
+}
+
+.color-btn:hover mark {
+  filter: saturate(1.06) brightness(1.01);
 }
 
 .styled-input {
@@ -98,8 +108,10 @@ h1 {
 }
 
 .styled-input:focus {
-  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.12);
-  border-color: rgba(99, 102, 241, 0.28);
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, 0.2),
+    0 8px 22px rgba(2, 6, 23, 0.1);
+  border-color: rgba(59, 130, 246, 0.55);
 }
 
 .styled-input:empty:before {
@@ -116,23 +128,35 @@ h1 {
 
 .diff-controls {
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
   margin: 0.5rem 0;
 }
 
 button.primary {
-  background: var(--accent);
+  background: linear-gradient(135deg, #2563eb, #14b8a6);
   color: white;
   border: none;
   padding: 0.6rem 1rem;
   border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.12);
-  transition: transform 0.08s ease;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.28);
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.12s ease,
+    filter 0.12s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
 }
 
 button.primary:hover {
   transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(20, 184, 166, 0.3);
+  filter: saturate(1.08);
+}
+
+button.primary:active {
+  transform: translateY(0);
 }
 
 button.secondary {
@@ -570,11 +594,20 @@ mark[unchanged] {
   border-color: rgba(255, 255, 255, 0.04);
   box-shadow: 0 6px 18px rgba(99, 102, 241, 0.06);
   /* make inputs slightly brighter than the page background */
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text);
   /* subtle inner highlight to separate from background */
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
+}
+
+:root[data-theme="dark"] .styled-input:focus,
+:root[data-theme="dark"] .styled-input:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(147, 197, 253, 0.7);
+  box-shadow:
+    0 0 0 3px rgba(147, 197, 253, 0.25),
+    0 10px 24px rgba(2, 6, 23, 0.35);
 }
 
 :root[data-theme="dark"] .diff-box {
@@ -585,6 +618,15 @@ mark[unchanged] {
 
 :root[data-theme="dark"] .toolbar-btn {
   color: var(--muted);
+}
+
+:root[data-theme="dark"] mark {
+  background-image: linear-gradient(
+    to right,
+    rgba(255, 193, 7, 0.12),
+    rgba(255, 193, 7, 0.75) 4%,
+    rgba(255, 193, 7, 0.35)
+  );
 }
 
 /* alternate diff mode outline and close button */
@@ -640,11 +682,21 @@ body.alt-mode .container .alt-close {
   padding: 0.5rem 0;
 }
 
-/* Prevent default yellow highlight for plain <mark> elements */
+/* Freehand marker highlight */
 mark {
+  margin: 0 -0.15em;
+  padding: 0.1em 0.15em;
+  border-radius: 0.8em 0.3em;
   background: transparent;
+  background-image: linear-gradient(
+    to right,
+    rgba(255, 225, 0, 0.1),
+    rgba(255, 225, 0, 0.7) 4%,
+    rgba(255, 225, 0, 0.3)
+  );
   color: inherit;
-  padding: 0;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 /* Light-mode: invert input and output visual roles (inputs look like cards, outputs blend with background) */
@@ -653,6 +705,14 @@ mark {
   color: var(--text);
   box-shadow: 0 6px 18px rgba(2, 6, 23, 0.04);
   border-color: rgba(15, 23, 42, 0.06);
+}
+
+:root:not([data-theme="dark"]) .styled-input:focus,
+:root:not([data-theme="dark"]) .styled-input:focus-visible {
+  border-color: rgba(59, 130, 246, 0.6);
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, 0.18),
+    0 8px 20px rgba(2, 6, 23, 0.12);
 }
 
 :root:not([data-theme="dark"]) .diff-box {

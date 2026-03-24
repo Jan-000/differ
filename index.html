@@ -61,11 +61,11 @@
         </div>
         <div class="reference-pane-content">
           <div class="reference-column">
-            <h4>Deletions</h4>
+            <h4>original text 1</h4>
             <div class="ref-box" id="ref-left"></div>
           </div>
           <div class="reference-column">
-            <h4>Additions</h4>
+            <h4>original text 2</h4>
             <div class="ref-box" id="ref-right"></div>
           </div>
         </div>
@@ -74,39 +74,45 @@
 
     <div class="inputs-row">
       <div class="input-column">
-        <div class="toolbar">
-          <button type="button" class="toolbar-btn" onclick="applyStyle('inputA', 'bold')">
-            <b>B</b>
-          </button>
-          <button type="button" class="toolbar-btn" onclick="applyStyle('inputA', 'italic')">
-            <i>I</i>
-          </button>
-          <button type="button" class="toolbar-btn" onclick="applyStyle('inputA', 'underline')">
-            <u>U</u>
-          </button>
-          <button type="button" class="toolbar-btn color-btn" onmousedown="event.preventDefault()"
-            onclick="applyBgColor('inputA')">
-            <mark>Abc</mark>
-          </button>
+        <div class="input-header-row">
+          <h4>Text 1</h4>
+          <div class="toolbar">
+            <button type="button" class="toolbar-btn" onclick="applyStyle('inputA', 'bold')">
+              <b>B</b>
+            </button>
+            <button type="button" class="toolbar-btn" onclick="applyStyle('inputA', 'italic')">
+              <i>I</i>
+            </button>
+            <button type="button" class="toolbar-btn" onclick="applyStyle('inputA', 'underline')">
+              <u>U</u>
+            </button>
+            <button type="button" class="toolbar-btn color-btn" onmousedown="event.preventDefault()"
+              onclick="applyBgColor('inputA')">
+              <mark>Abc</mark>
+            </button>
+          </div>
         </div>
         <div id="inputA" contenteditable="true" class="styled-input" data-placeholder="Enter first string..."></div>
       </div>
 
       <div class="input-column">
-        <div class="toolbar">
-          <button type="button" class="toolbar-btn" onclick="applyStyle('inputB', 'bold')">
-            <b>B</b>
-          </button>
-          <button type="button" class="toolbar-btn" onclick="applyStyle('inputB', 'italic')">
-            <i>I</i>
-          </button>
-          <button type="button" class="toolbar-btn" onclick="applyStyle('inputB', 'underline')">
-            <u>U</u>
-          </button>
-          <button type="button" class="toolbar-btn color-btn" onmousedown="event.preventDefault()"
-            onclick="applyBgColor('inputB')">
-            <mark>Abc</mark>
-          </button>
+        <div class="input-header-row">
+          <h4>Text 2</h4>
+          <div class="toolbar">
+            <button type="button" class="toolbar-btn" onclick="applyStyle('inputB', 'bold')">
+              <b>B</b>
+            </button>
+            <button type="button" class="toolbar-btn" onclick="applyStyle('inputB', 'italic')">
+              <i>I</i>
+            </button>
+            <button type="button" class="toolbar-btn" onclick="applyStyle('inputB', 'underline')">
+              <u>U</u>
+            </button>
+            <button type="button" class="toolbar-btn color-btn" onmousedown="event.preventDefault()"
+              onclick="applyBgColor('inputB')">
+              <mark>Abc</mark>
+            </button>
+          </div>
         </div>
         <div id="inputB" contenteditable="true" class="styled-input" data-placeholder="Enter second string..."></div>
       </div>

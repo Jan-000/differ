@@ -4,6 +4,7 @@
   --muted: #747a85;
   --accent: #747a85;
   --text: #0f172a;
+  --title: #4b5563;
   --marker-highlight: #facc15;
   --marker-ink: #1f2937;
 }
@@ -40,6 +41,7 @@ h1 {
   font-weight: 600;
   font-size: 1.25rem;
   margin: 0 0 1rem;
+  color: var(--title);
 }
 
 .inputs-row {
@@ -53,6 +55,22 @@ h1 {
 .diff-column {
   flex: 1 1 45%;
   min-width: 260px;
+}
+
+.input-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.input-header-row h4 {
+  margin: 0;
+}
+
+.input-header-row .toolbar {
+  margin-bottom: 0;
 }
 
 .toolbar {
@@ -103,6 +121,7 @@ h1 {
   border-radius: 12px;
   padding: 14px;
   font-size: 0.95rem;
+  line-height: 1.7;
   background: transparent;
   outline: none;
   white-space: pre-wrap;
@@ -300,7 +319,8 @@ button.secondary:hover {
   min-width: 200px;
 }
 
-.reference-column h4 {
+.reference-column h4,
+.input-column h4 {
   margin: 0 0 0.5rem;
   font-size: 0.8rem;
   font-weight: 600;
@@ -368,8 +388,10 @@ button.secondary:hover {
 .added {
   background: #7affa2;
   color: #065f46;
-  padding: 4px 1px;
+  padding: 2px 1px;
   border-radius: 6px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
   cursor: pointer;
   user-select: none;
 }
@@ -377,15 +399,19 @@ button.secondary:hover {
 .removed {
   background: #ff818a;
   color: #9f1239;
-  padding: 4px 1px;
+  padding: 2px 1px;
   border-radius: 6px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 .deleted {
   background: #ff818a;
   color: #9f1239;
-  padding: 4px 1px;
+  padding: 2px 1px;
   border-radius: 6px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
   cursor: pointer;
   user-select: none;
 }
@@ -629,6 +655,7 @@ button.secondary:hover {
   --muted: #747a85;
   --accent: #747a85;
   --text: #e6eef8;
+  --title: #cbd5e1;
 }
 
 :root[data-theme="dark"] .styled-input {
@@ -654,6 +681,32 @@ button.secondary:hover {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
   /* subtle border to define output areas */
   border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+:root[data-theme="dark"] .reference-pane {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="dark"] .reference-pane-header {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="dark"] .reference-pane-header:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+:root[data-theme="dark"] .reference-pane-header h3,
+:root[data-theme="dark"] .reference-column h4,
+:root[data-theme="dark"] .reference-arrow {
+  color: rgba(230, 238, 248, 0.82);
+}
+
+:root[data-theme="dark"] .ref-box {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(230, 238, 248, 0.9);
 }
 
 :root[data-theme="dark"] .toolbar-btn {
@@ -741,7 +794,7 @@ body.alt-mode .container .alt-close {
   gap: 0.45rem;
   padding: 0;
   color: var(--muted);
-  cursor: pointer;  
+  cursor: pointer;
   font-size: .8rem
 }
 

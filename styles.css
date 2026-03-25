@@ -721,7 +721,7 @@ body.alt-mode .container .alt-close {
 }
 
 .about.is-open > .about-header::after {
-  transform: rotate(90deg);
+  transform: rotate(-90deg);
 }
 
 .about-subsection {

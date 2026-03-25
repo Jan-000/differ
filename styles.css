@@ -698,16 +698,16 @@ body.alt-mode .container .alt-close {
 }
 
 .about>summary::after {
-  content: "▴";
+  content: "▸ ";
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
   line-height: 1;
   color: currentColor;
-  font-size: 0.9rem;
-  transform-origin: center center;
+  font-size: 1.08rem;
+  transform-origin: 50% 56%;
   transition: transform 0.18s ease;
 }
 
@@ -716,7 +716,7 @@ body.alt-mode .container .alt-close {
 }
 
 .about[open]>summary::after {
-  transform: rotate(180deg);
+  transform: rotate(90deg);
 }
 
 .about-subsection {
@@ -744,9 +744,20 @@ body.alt-mode .container .alt-close {
   font-weight: 400;
 }
 
+.about-intro-block {
+  margin-left: 1.85rem;
+}
+
 .about-subsection>summary::before {
   content: "▸";
-  font-size: 0.72rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  line-height: 1;
+  font-size: 1.15rem;
+  transform-origin: 50% 56%;
   transition: transform 0.16s ease;
 }
 
@@ -758,8 +769,14 @@ body.alt-mode .container .alt-close {
   display: none;
 }
 
+.about-subsection>p,
+.about-subsection>.code-sample {
+  margin-left: 1.85rem;
+}
+
 .about-subsection>p {
-  margin: 0.35rem 0 0;
+  margin-top: 0.35rem;
+  margin-bottom: 0;
 }
 
 .about .code-sample {
@@ -769,6 +786,7 @@ body.alt-mode .container .alt-close {
   background: #f3f4f6;
   border: 1px solid rgba(15, 23, 42, 0.1);
   overflow-x: auto;
+  width: min-content;
 }
 
 .about .code-sample code {

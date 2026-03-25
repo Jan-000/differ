@@ -31,7 +31,7 @@
 <body>
   <div class="container">
     <div class="header-row">
-      <h1 id="page-title">html string diffing tool - newest engine</h1>
+      <h1 id="page-title">Text diffing tool</h1>
       <div class="header-actions">
         <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" aria-pressed="false">
           <!-- Sun icon -->
@@ -126,18 +126,45 @@
     <summary>About</summary>
     <div class="about-body">
       <p>
-        Placeholder: This tool shows differences between two rich-text
-        strings. It supports inline highlights, basic formatting and revert
-        actions. Put: explanation about heuristic and edge cases. Make
-        explanation progressively expansible. A la limite that could be a
-        small model, trained to answer questions and explain the repo.
+        <b>In brief:</b> this tool compares two texts, even if they contain styling.
       </p>
-      <p><strong>Previous engines</strong></p>
+
       <p>
-        <a href="#" id="engine-tokens-link">diffArrays of tokens</a>
-        &middot;
-        <a href="#" id="engine-words-link">diffWords by words</a>
+        <b>Full context:</b> the tool was initially intended for change-tracking in a text editor. It assumes that the
+        text
+        changed in time, so we would typically compare:
       </p>
+
+      <div class="about-compare-row">
+        <div class="about-compare-box">original text<br><i>
+            <p class="slightly-smaller">("before" version)</p>
+          </i></div>
+        <div class="about-compare-separator">versus:</div>
+        <div class="about-compare-box">current text<br><i>
+            <p class="slightly-smaller">("after" version)</p>
+          </i></div>
+      </div>
+
+
+      <details class="about-subsection">
+        <summary>Main challenge: it is actually comparing HTML strings, because text might be styled</summary>
+        <p>Malformed example:</p>
+        <pre
+          class="code-sample"><code class="lang-html"><span class="tok-punc">&lt;</span><span class="tok-tag">mark</span> <span class="tok-attr">class</span><span class="tok-op">=</span><span class="tok-str">"added"</span><span class="tok-punc">&gt;</span><span class="tok-punc">&lt;</span><span class="tok-tag">b</span><span class="tok-punc">&gt;</span>bold <span class="tok-punc">&lt;/</span><span class="tok-tag">mark</span><span class="tok-punc">&gt;</span>text<span class="tok-punc">&lt;/</span><span class="tok-tag">b</span><span class="tok-punc">&gt;</span></code></pre>
+      </details>
+
+      <details class="about-subsection">
+        <summary>Minor challenges</summary>
+        Identify so-called corresponding changes, for example the middle word in those phrases:
+        Going surfing soon → Going surfing now
+      </details>
+    </div>
+    <p><strong>Previous engines</strong></p>
+    <p>
+      <a href="#" id="engine-tokens-link">diffArrays of tokens</a>
+      &middot;
+      <a href="#" id="engine-words-link">diffWords by words</a>
+    </p>
     </div>
   </details>
   <script>
@@ -145,7 +172,7 @@
       newest: {
         script: "diff3.js",
         globalName: "DiffNewest",
-        title: "html string diffing tool - newest engine",
+        title: "Text diffing tool",
       },
       tokens: {
         script: "diff2.js",

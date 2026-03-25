@@ -122,8 +122,8 @@
       <button id="show-diff-btn" class="primary" onclick="showDiff()" disabled>SHOW DIFF</button>
     </div>
   </div>
-  <details id="about" class="about">
-    <summary>About</summary>
+  <div id="about" class="about">
+    <div class="about-header" role="button" tabindex="0" aria-expanded="false">About</div>
     <div class="about-body">
       <div class="about-intro-block">
         <p>
@@ -145,36 +145,42 @@
       </div>
 
 
-      <details class="about-subsection">
-        <summary>
+      <div class="about-subsection">
+        <div class="about-subsection-header" role="button" tabindex="0" aria-expanded="false">
           Main challenge:
           <span class="about-summary-text">it is actually comparing HTML strings, because text might be styled.</span>
-        </summary>
-        <p>Malformed example:</p>
-        <pre
-          class="code-sample"><code class="lang-html"><span class="tok-punc">&lt;</span><span class="tok-tag">mark</span> <span class="tok-attr">class</span><span class="tok-op">=</span><span class="tok-str">"added"</span><span class="tok-punc">&gt;</span><span class="tok-punc">&lt;</span><span class="tok-tag">b</span><span class="tok-punc">&gt;</span>bold <span class="tok-punc">&lt;/</span><span class="tok-tag">mark</span><span class="tok-punc">&gt;</span>text<span class="tok-punc">&lt;/</span><span class="tok-tag">b</span><span class="tok-punc">&gt;</span></code></pre>
-      </details>
+        </div>
+        <div class="about-subsection-body">
+          <p>Malformed example:</p>
+          <pre
+            class="code-sample"><code class="lang-html"><span class="tok-punc">&lt;</span><span class="tok-tag">mark</span> <span class="tok-attr">class</span><span class="tok-op">=</span><span class="tok-str">"added"</span><span class="tok-punc">&gt;</span><span class="tok-punc">&lt;</span><span class="tok-tag">b</span><span class="tok-punc">&gt;</span>bold <span class="tok-punc">&lt;/</span><span class="tok-tag">mark</span><span class="tok-punc">&gt;</span>text<span class="tok-punc">&lt;/</span><span class="tok-tag">b</span><span class="tok-punc">&gt;</span></code></pre>
+        </div>
+      </div>
 
-      <details class="about-subsection">
-        <summary>Minor challenges</summary>
-        <p>
-          Identify so-called corresponding changes, for example the middle word in those phrases:
-          Going surfing soon → Going surfing now
-        </p>
-      </details>
+      <div class="about-subsection">
+        <div class="about-subsection-header" role="button" tabindex="0" aria-expanded="false">Minor challenges</div>
+        <div class="about-subsection-body">
+          <p>
+            Identify so-called corresponding changes, for example the middle word in those phrases:
+            Going surfing soon → Going surfing now
+          </p>
+        </div>
+      </div>
 
-      <details class="about-subsection">
-        <summary>Previous engines (note for myself)</summary>
-        <p>
-          List of different approaches I had to test before reaching current solution. Diff js library offers different
-          functions for diffing and I wanted to keep trace of testing them.
-          <a href="#" id="engine-tokens-link">diffArrays of tokens</a>
-          &middot;
-          <a href="#" id="engine-words-link">diffWords by words</a>
-        </p>
-      </details>
+      <div class="about-subsection">
+        <div class="about-subsection-header" role="button" tabindex="0" aria-expanded="false">Previous engines (note for myself)</div>
+        <div class="about-subsection-body">
+          <p>
+            List of different approaches I had to test before reaching current solution. Diff js library offers different
+            functions for diffing and I wanted to keep trace of testing them.
+            <a href="#" id="engine-tokens-link">diffArrays of tokens</a>
+            &middot;
+            <a href="#" id="engine-words-link">diffWords by words</a>
+          </p>
+        </div>
+      </div>
     </div>
-  </details>
+  </div>
   <script>
     const ENGINE_CONFIGS = {
       newest: {
@@ -305,6 +311,34 @@
       updateShowDiffButtonState();
     }
 
+    function bindSimpleAboutToggles() {
+      function bindToggle(container, header) {
+        if (!container || !header) return;
+
+        function toggle() {
+          const isOpen = container.classList.toggle("is-open");
+          header.setAttribute("aria-expanded", String(isOpen));
+        }
+
+        header.addEventListener("click", toggle);
+        header.addEventListener("keydown", function (event) {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          toggle();
+        });
+      }
+
+      const about = document.getElementById("about");
+      if (!about) return;
+
+      bindToggle(about, about.querySelector(":scope > .about-header"));
+
+      const sections = about.querySelectorAll(".about-subsection");
+      sections.forEach(function (section) {
+        bindToggle(section, section.querySelector(":scope > .about-subsection-header"));
+      });
+    }
+
     function applyEngineApi(api) {
       if (!api) return;
       if (typeof api.applyStyle === "function") window.applyStyle = api.applyStyle;
@@ -400,6 +434,7 @@
 
       initThemeControls();
       bindEditorState();
+      bindSimpleAboutToggles();
 
       if (themeToggle) {
         themeToggle.addEventListener("click", toggleTheme);

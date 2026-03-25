@@ -126,13 +126,12 @@
     <summary>About</summary>
     <div class="about-body">
       <p>
-        <b>In brief:</b> this tool compares two texts, even if they contain styling.
+        <span class="about-section-title">In brief:</span> this tool compares two texts, even if they contain styling.
       </p>
 
       <p>
-        <b>Full context:</b> the tool was initially intended for change-tracking in a text editor. It assumes that the
-        text
-        changed in time, so we would typically compare:
+        <span class="about-section-title">Full context:</span> the tool was initially intended for a text-editor that
+        has change-tracking function. So it assumes that the text changed in time, so we would typically compare:
       </p>
 
       <div class="about-compare-row">
@@ -147,7 +146,10 @@
 
 
       <details class="about-subsection">
-        <summary>Main challenge: it is actually comparing HTML strings, because text might be styled</summary>
+        <summary>
+          Main challenge:
+          <span class="about-summary-text">it is actually comparing HTML strings, because text might be styled.</span>
+        </summary>
         <p>Malformed example:</p>
         <pre
           class="code-sample"><code class="lang-html"><span class="tok-punc">&lt;</span><span class="tok-tag">mark</span> <span class="tok-attr">class</span><span class="tok-op">=</span><span class="tok-str">"added"</span><span class="tok-punc">&gt;</span><span class="tok-punc">&lt;</span><span class="tok-tag">b</span><span class="tok-punc">&gt;</span>bold <span class="tok-punc">&lt;/</span><span class="tok-tag">mark</span><span class="tok-punc">&gt;</span>text<span class="tok-punc">&lt;/</span><span class="tok-tag">b</span><span class="tok-punc">&gt;</span></code></pre>
@@ -158,13 +160,17 @@
         Identify so-called corresponding changes, for example the middle word in those phrases:
         Going surfing soon → Going surfing now
       </details>
-    </div>
-    <p><strong>Previous engines</strong></p>
-    <p>
-      <a href="#" id="engine-tokens-link">diffArrays of tokens</a>
-      &middot;
-      <a href="#" id="engine-words-link">diffWords by words</a>
-    </p>
+
+      <details class="about-subsection">
+        <summary>Previous engines (note for myself)</summary>
+        <p>
+          List of different approaches I had to test before reaching current solution. Diff js library offers different
+          functions for diffing and I wanted to keep trace of testing them.
+          <a href="#" id="engine-tokens-link">diffArrays of tokens</a>
+          &middot;
+          <a href="#" id="engine-words-link">diffWords by words</a>
+        </p>
+      </details>
     </div>
   </details>
   <script>

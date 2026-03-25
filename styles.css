@@ -695,9 +695,7 @@ body.alt-mode .container .alt-close {
   flex-direction: row-reverse;
   gap: 0.45rem;
   padding: 0;
-  color: var(--muted);
   cursor: pointer;
-  font-size: .8rem;
 }
 
 .about>summary::after {
@@ -726,15 +724,25 @@ body.alt-mode .container .alt-close {
   margin: 0.35rem 0 0.6rem;
 }
 
+.about>summary,
+.about-section-title,
+.about-subsection>summary {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 .about-subsection>summary {
   list-style: none;
   cursor: pointer;
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 600;
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.35rem;
+}
+
+.about-summary-text {
+  font-weight: 400;
 }
 
 .about-subsection>summary::before {
@@ -874,10 +882,8 @@ body.alt-mode .container .alt-close {
   background: rgba(255, 255, 255, 0.06);
 }
 
-[data-theme="dark"] .about>summary {
-  color: var(--text);
-}
-
+[data-theme="dark"] .about>summary,
+[data-theme="dark"] .about-section-title,
 [data-theme="dark"] .about-subsection>summary {
   color: rgba(230, 238, 248, 0.82);
 }

@@ -576,13 +576,12 @@ button.secondary:hover {
   width: 40px;
   height: 40px;
   color: var(--muted);
-  transition: background 0.12s ease, transform 0.08s ease;
+  transition: background 0.12s ease;
   margin-left: -8px;
 }
 
 .theme-toggle:hover {
   background: rgba(2, 6, 23, 0.04);
-  transform: translateY(-1px);
 }
 
 .theme-toggle svg {

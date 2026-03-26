@@ -320,6 +320,10 @@
         function toggle() {
           const isOpen = container.classList.toggle("is-open");
           header.setAttribute("aria-expanded", String(isOpen));
+
+          if (container.id === "about") {
+            document.body.classList.toggle("about-open-mobile", isOpen);
+          }
         }
 
         header.addEventListener("click", toggle);

@@ -541,6 +541,16 @@ button.secondary:hover {
   .diff-column {
     flex-basis: 100%;
   }
+
+  .diff-controls {
+    width: 100%;
+  }
+
+  button.primary {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
 }
 
 /* ── Header & theme toggle ── */

@@ -131,7 +131,7 @@
         </p>
         <p>
           <span class="about-section-title">Full context:</span> the tool was initially intended for a text-editor that
-          has change-tracking function. I t assumes that the text changed in time, so we would typically compare:
+          has change-tracking function. It assumes that the text changed in time, so we would typically compare:
         </p>
         <div class="about-compare-row">
           <div class="about-compare-box">original text<br><i>
@@ -148,7 +148,8 @@
       <div class="about-subsection">
         <div class="about-subsection-header" role="button" tabindex="0" aria-expanded="false">
           Main challenge:
-          <span class="about-summary-text">it is actually comparing HTML strings, because text might be styled.</span>
+          <span class="about-summary-text">How to prevent <i>diffing</i> from getting confused by <i>styling</i>.
+            Comparison runs between HTML strings, so some pre- and post-processing is necessary.</span>
         </div>
         <div class="about-subsection-body">
           <p>Malformed example:</p>
@@ -161,8 +162,12 @@
         <div class="about-subsection-header" role="button" tabindex="0" aria-expanded="false">Minor challenges</div>
         <div class="about-subsection-body">
           <p>
-            Identify "corresponding" changes. For example, it is the middle word in those phrases:<br>
-            Going <u>surfing</u> soon → Going <u>skating</u> soon
+            Identify "corresponding" changes. Example of "corresponding" change:<br><br>
+          <div class="about-compare-row">
+            <div class="about-compare-box">Going <u>surfing</u> soon</div><div class="about-compare-separator">versus:</div><div class="about-compare-box">Going
+              <u>skating</u> soon</div>
+          </div><br>
+          When rejecting such change, a word (or text-run ) has to be replaced with the corresponding one.
           </p>
         </div>
       </div>

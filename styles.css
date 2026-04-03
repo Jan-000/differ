@@ -738,6 +738,9 @@ body.alt-mode .container .alt-close {
 .about-subsection {
   margin: 0.35rem 0 0.6rem;
 }
+.about-subsection-body {
+  margin-left: 1.85rem;
+}
 
 .about-subsection>.about-subsection-body {
   display: block;
@@ -795,10 +798,7 @@ body.alt-mode .container .alt-close {
   transform: rotate(90deg);
 }
 
-.about-subsection-body>p,
-.about-subsection-body>.code-sample {
-  margin-left: 1.85rem;
-}
+
 
 .about-subsection-body>p {
   margin-top: 0.35rem;

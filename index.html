@@ -149,7 +149,7 @@
         <div class="about-subsection-header" role="button" tabindex="0" aria-expanded="false">
           Main challenge:
           <span class="about-summary-text">How to prevent <i>diffing</i> from getting confused by <i>styling</i>.
-            Comparison runs between HTML strings, so some pre- and post-processing is necessary.</span>
+            HTML strings require preprocessing before comparison (mapping styles per word).</span>
         </div>
         <div class="about-subsection-body">
           <p>Malformed example:</p>
@@ -161,14 +161,31 @@
       <div class="about-subsection">
         <div class="about-subsection-header" role="button" tabindex="0" aria-expanded="false">Minor challenges</div>
         <div class="about-subsection-body">
-          <p>
-            Identify "corresponding" changes. Example of "corresponding" change:<br><br>
-          <div class="about-compare-row">
-            <div class="about-compare-box">Going <u>surfing</u> soon</div><div class="about-compare-separator">versus:</div><div class="about-compare-box">Going
-              <u>skating</u> soon</div>
-          </div><br>
-          When rejecting such change, a word (or text-run ) has to be replaced with the corresponding one.
-          </p>
+          <ol>
+            <li>
+              <p>
+                Identify "corresponding" changes. Example of "corresponding" change:<br><br>
+              <div class="about-compare-row">
+                <div class="about-compare-box">Going <u>surfing</u> soon</div>
+                <div class="about-compare-separator">versus:</div>
+                <div class="about-compare-box">Going
+                  <u>skating</u> soon
+                </div>
+              </div><br>
+              When rejecting such change, a word (or text-run) has to be replaced with the corresponding one.
+              </p>
+            </li>
+            <li>
+              <p>After omiting styling during comparison, how to reapply it without malformed html? In the end each word
+                stores information about its styling, as simple propert on object. <br><br>
+                <u>Previous approach:</u> it was direct comparison of html strings, which gives array of added, deleted
+                and
+                unchanged runs of text. Array items had to be analysed and flagged, whether they
+                represented meaningful text-content, or e.g interior of html tag. That approach led to malformed html,
+                when reconstructing diffed strings.
+              </p>
+            </li>
+          </ol>
         </div>
       </div>
 

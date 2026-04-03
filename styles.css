@@ -738,6 +738,7 @@ body.alt-mode .container .alt-close {
 .about-subsection {
   margin: 0.35rem 0 0.6rem;
 }
+
 .about-subsection-body {
   margin-left: 1.85rem;
 }
@@ -1005,4 +1006,9 @@ body.alt-mode .container .alt-close {
     max-height: min(60vh, 30rem);
     overflow: auto;
   }
+}
+
+ol {
+  margin: 0;
+  padding-inline-start: 1rem;
 }
